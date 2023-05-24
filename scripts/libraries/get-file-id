@@ -1,0 +1,12 @@
+#!/bin/ash
+# shellcheck shell=dash disable=1091
+#Import formating
+. formating
+#Gets the File ID from google drive of a file specified with a regex
+getfileid(){
+    #allow for searching insinde folders
+    if [ "$1" = "--parent" ]; then
+        gdrive files list --parent "$2" | grep -i -E "$3" | sed -E 's/[ ].*//g'
+    fi
+    gdrive files list | grep -i -E "$1" | sed -E 's/[ ].*//g'
+}

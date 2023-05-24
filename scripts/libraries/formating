@@ -1,0 +1,14 @@
+#!/bin/ash
+# shellcheck shell=dash
+info(){
+    printf %b"[ $(date +%T) | $(basename "$0") ] "'\x1b[38;5;246m'"$1"'\e[0;0m\n'
+}
+warn(){
+    printf %b"[ $(date +%T) | $(basename "$0") ] "'\x1b[38;5;222m'"$1"'\e[0;0m\n'
+}
+error(){
+    printf %b"[ $(date +%T) | $(basename "$0") ] "'\x1b[38;5;1m'"$1"'\e[0;0m\n'
+}
+critical(){
+    printf %b"[ $(date +%T) | $(basename "$0") ] "'\x1b[48;5;9m\x1b[38;5;255m'"$1"'\e[0;0m\n'
+}
