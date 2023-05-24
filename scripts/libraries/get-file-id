@@ -1,7 +1,9 @@
 #!/bin/ash
 # shellcheck shell=dash disable=1091
-#Import formating
+#Import libraries
 . formating
+
+#Add the functions
 #Gets the File ID from google drive of a file specified with a regex
 getfileid(){
     #allow for searching insinde folders
