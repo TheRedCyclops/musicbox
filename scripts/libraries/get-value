@@ -1,0 +1,9 @@
+#!/bin/ash
+# shellcheck shell=dash disable=1091
+#Import libraries
+. formating
+
+#Add the functions
+getvalue(){
+    grep "^$1:" /etc/musicbox/config | sed -E "s/^$1://"
+}
