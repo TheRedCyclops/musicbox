@@ -1,0 +1,3 @@
+#User Cron tab
+# min    hour    day    month    weekday    command
+  0      20       *      *        1-5        load | tee /var/log/musicbox/$(date +%Y-%m-%d)
