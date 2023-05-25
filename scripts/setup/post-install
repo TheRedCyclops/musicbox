@@ -1,0 +1,59 @@
+#!/bin/ash
+# shellcheck shell=dash
+# shellcheck disable=2164
+#get the path to the script
+scriptpath="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+#import formating functions
+# shellcheck disable=1091
+. "$scriptpath/scripts/libraries/formating"
+#Check root
+[ "$(id -u)" -eq 0 ] || critical "Unable to preform post install, not enough permisions!!" && exit 1
+#set the unprivileged user
+
+#define locations
+cache=/var/cache/musicbox
+bin=/usr/local/bin
+#enable all extra repos
+cat <<EOF > /etc/apk/repositories
+#normal repos
+https://dl-cdn.alpinelinux.org/alpine/v3.18/main
+https://dl-cdn.alpinelinux.org/alpine/v3.18/community
+#extra repos
+@edge         https://dl-cdn.alpinelinux.org/alpine/edge/main
+@edgecomunity https://dl-cdn.alpinelinux.org/alpine/edge/community
+@testing      https://dl-cdn.alpinelinux.org/alpine/edge/testing
+EOF
+#setup Network Time Protocol
+setup-ntp
+#install packages
+apk add ffmpeg mp3gain@testing mp3val@testing s-nail postfix pulseaudio pulseaudio-utils vlc yt-dlp
+#download and install gdrive
+ver=3.9.0
+wget "https://github.com/glotlabs/gdrive/releases/download/$ver/gdrive_linux-x64.tar.gz" -O /var/tmp/gdrive-$ver.tar.gz
+tar xzf /var/tmp/gdrive-$ver.tar.gz -C $bin/
+rm /var/tmp/gdrive-$ver.tar.gz
+#Get the credentials to be used
+echo "Getting Credentials"
+unzip creds.zip
+user=$(grep "username=" creds/user.txt | sed -E /username=//s)
+#enable cron
+rc-service crond start && rc-update add crond
+#add unprivileged user
+adduser -h /home/unprivilieged-user-files $user
+mkdir $cache
+chown $user $cache
+#setup drive access
+su $user -c "gdrive account import creds/gdrive_export-***REMOVED***.tar"
+#setup default crontabs
+crontab "$scriptpath/cron/rootcron.txt"
+su $user -c "crontab \"$scriptpath/cron/usercron.txt\""
+#copy scripts to bin
+#grep removes omitting directory warning as it is copied later
+cp "$scriptpath/scripts/"* $bin 2>&1 | grep -v -E 'omitting directory'
+cp "$scriptpath/scripts/check/"* $bin
+#generate default slots
+mkdir /usr/local/slots
+slotgen 7
+#setup mail
+touch /etc/postfix/sasl_password
+chmod 600 
