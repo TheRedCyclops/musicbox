@@ -1,0 +1,15 @@
+#!/bin/ash
+# shellcheck shell=dash
+volume='-2%'
+speed="0.1"
+# shellcheck disable=SC2034
+#gradualy lower volume
+for i in $(seq 0 99); do
+    sleep $speed
+    #get each sink and lower the volume
+    for sink in $(pacmd list-sinks | grep 'index:' | cut -b12-)
+    do
+        pactl set-sink-volume "$sink" $volume
+    done
+done
+exit 0
