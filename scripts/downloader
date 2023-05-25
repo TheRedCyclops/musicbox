@@ -1,9 +1,0 @@
-#!/bin/ash
-# shellcheck shell=dash disable=1091
-#Import libraries
-. formating
-grep -Eq -- '^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$' /tmp/musicbox/song-list|| warn "No links were found!, only using songs from extra-songs folder!"
-for link in "$@"; do
-eval $((i=i+1))
-yt-dlp -x --audio-format mp3 --audio-quality 0 --sponsorblock-remove all -o "/var/cache/music/song$i.%(ext)s" "$link"
-done
