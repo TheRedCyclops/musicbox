@@ -4,7 +4,8 @@
 . formating
 #get the song list
 cd /tmp/musicbox/ || warn "Temporary directory doesn't exist, attempting to create it"
-gdrive files download "$(get-file-id 'song[ \-\.]list')"
+gdrive files download "$(gdfileidlib 'song[ \-\.]list')"
+#rename whatever it was named as to a normalized name
 mv -- *ong*ist song-list
 #check and format the list
 #get if any links are in the file if not warn that only using the extra songs
