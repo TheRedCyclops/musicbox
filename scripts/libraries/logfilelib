@@ -1,0 +1,9 @@
+#!/bin/ash
+# shellcheck shell=dash disable=1091
+#Import libraries
+. formatlib
+
+logfile(){
+    [ -z "$MUSICBOX_LOG_DIR" ] || warn "the logging directory isn't set" && export MUSICBOX_LOG_DIR="/var/log/musicbox"
+    printf "%s/$(date +%Y-%m-%d).log"  "$MUSICBOX_LOG_DIR"
+}

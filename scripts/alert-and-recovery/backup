@@ -2,8 +2,4 @@
 # shellcheck shell=dash disable=1091
 #Import libraries
 . formatlib
-
-#Add the functions
-getvalue(){
-    grep "^$1=" $ | sed -E "s/^$1=//"
-}
+. configlib

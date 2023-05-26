@@ -1,0 +1,9 @@
+version: '3'
+services:
+  alpine-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/load
+    command: /bin/ash

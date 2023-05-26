@@ -1,0 +1,4 @@
+#!/bin/ash
+# shellcheck shell=dash disable=1091
+#Import libraries
+. formatlib

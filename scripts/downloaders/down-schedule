@@ -1,0 +1,4 @@
+#!/bin/ash
+# shellcheck shell=dash
+#Remove comments for check
+grep -v -E '^#.*' "$1"

@@ -1,0 +1,15 @@
+#MusicBox config
+#Comments have a '# at the start'
+#enable the program?
+enabled=true
+#set the time to reload the config schedule and songs
+reload-time=20:00
+#enable post-processing of songs?
+post-processing=true
+#what should the unprivileged user be?
+unpriv_user="music"
+#enable the auto-updating of the system?
+#since it is slighly more likely that the drive API changes than that apk isn't able to handle depencency conflicts it is enabled by default
+auto-update=true
+#number of time slots to be used, you must specify the time window in the schedule file for each one
+slots=11

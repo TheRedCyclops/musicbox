@@ -1,19 +1,28 @@
 #!/bin/ash
-# shellcheck shell=dash
-# shellcheck disable=2164
-#get the path to the script
-scriptpath="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-#import formating functions
-# shellcheck disable=1091
-. "$scriptpath/scripts/libraries/formating"
-#Check root
-[ "$(id -u)" -eq 0 ] || critical "Unable to preform post install, not enough permisions!!" && exit 1
-#set the unprivileged user
+# shellcheck shell=dash disable=1091
 
-#define locations
+# Copyright The Red Cyclops © 2023
+# This program is free software: you can redistribute it and/or modify it under the terms of
+# the GNU General Public License as published by the Free Software Foundation,
+# either version 3 of the License, or (at your option) any later version.
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with this program.
+# If not, see <https://www.gnu.org/licenses/>. 
+
+# Get the path to the script
+scriptpath="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 || echo "CRITICAL: failed to get the path to the script" ; pwd -P )"
+# Import libraries
+. "$scriptpath/scripts/libraries/formatlib"
+. "$scriptpath/scripts/libraries/rootpermlib"
+
+# Set the unprivileged user
+
+# Define locations
 cache=/var/cache/musicbox
 bin=/usr/local/bin
-#enable all extra repos
+# Enable all extra repos
 cat <<EOF > /etc/apk/repositories
 #normal repos
 https://dl-cdn.alpinelinux.org/alpine/v3.18/main
@@ -23,18 +32,18 @@ https://dl-cdn.alpinelinux.org/alpine/v3.18/community
 @edgecomunity https://dl-cdn.alpinelinux.org/alpine/edge/community
 @testing      https://dl-cdn.alpinelinux.org/alpine/edge/testing
 EOF
-#setup Network Time Protocol
+# Setup Network Time Protocol
 setup-ntp
-#install packages
+#Install packages
 apk add ffmpeg mp3gain@testing mp3val@testing s-nail postfix pulseaudio pulseaudio-utils vlc yt-dlp
-#download and install gdrive
+# Download and install gdrive
 ver=3.9.0
 wget "https://github.com/glotlabs/gdrive/releases/download/$ver/gdrive_linux-x64.tar.gz" -O /var/tmp/gdrive-$ver.tar.gz
 tar xzf /var/tmp/gdrive-$ver.tar.gz -C $bin/
 rm /var/tmp/gdrive-$ver.tar.gz
-#Get the credentials to be used
+# Unpack the credentials to be used
 echo "Getting Credentials"
-unzip creds.zip
+unzip creds.tar
 user=$(grep "username=" creds/user.txt | sed -E /username=//s)
 #enable cron
 rc-service crond start && rc-update add crond

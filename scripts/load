@@ -1,0 +1,28 @@
+#!/bin/ash
+# shellcheck shell=dash disable=1091
+#Import formating
+. formatlib
+. configlib
+#export the working directories and user the operations are done as
+export MUSICBOX_TMP_DIR="/var/tmp/musicbox"
+export MUSICBOX_LOG_DIR="/var/log/musicbox"
+export MUSICBOX_CFG_DIR="/etc/musicbox"
+export MUSICBOX_USER="music"
+#download the necesary files
+get-configuration &
+get-schedule      &
+get-songs         &
+#Check if post-processing is enabled
+#Wait to finish getting the configuration
+wait "$(pidof get-configuration)"
+if getvalue post-processing; then
+    #Wait for the all the songs to be downloaded
+    wait "$(pidof get-songs)"
+    #run the post-processor
+    post-processor
+fi
+#Check if a critical error has happened, if so send a email about it
+if grep -Eq -- 'CRITICAL_ERROR' $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d); then
+wait
+fi
+scheduler

@@ -1,0 +1,28 @@
+#!/bin/ash
+# shellcheck shell=dash disable=1091
+. formating
+#get when the program should run again
+reloadhour=$(grep '^reload-time' /etc/musicbox/config | sed -E 's/reload-time=//' -E 's/:[0-5][0-9]$//')
+reloadmin=$(grep '^reload-time' /etc/musicbox/config | sed -E 's/reload-time=//' -E 's/[0-2][0-9]://')
+#validate the time
+if [ "$reloadhour" -gt 24 ]; then
+    reloadhour=23
+fi
+if [ "$reloadhour" -gt 59 ]; then
+    reloadmin=59
+fi
+#get the number of slots being used
+
+#write crontab
+info "Writting crontab"
+if crontab - <<EOF 
+#User Cron tab
+# min    hour    day    month    weekday    command
+  $reloadmin      $reloadhour       *      *        1-5        load | tee /var/log/musicbox/$(date +%Y-%m-%d)
+
+EOF
+    then
+        info "Successfully wrote crontab"
+    else
+        error "The Writting of the crontab failed"
+fi
