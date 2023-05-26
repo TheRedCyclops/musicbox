@@ -45,24 +45,24 @@ rm /var/tmp/gdrive-$ver.tar.gz
 echo "Getting Credentials"
 unzip creds.tar
 user=$(grep "username=" creds/user.txt | sed -E /username=//s)
-#enable cron
+# Enable cron
 rc-service crond start && rc-update add crond
-#add unprivileged user
-adduser -h /home/unprivilieged-user-files $user
+# Add unprivileged user
+adduser -h /home/unprivilieged-user-files "$user"
 mkdir $cache
-chown $user $cache
-#setup drive access
-su $user -c "gdrive account import creds/gdrive_export-***REMOVED***.tar"
-#setup default crontabs
+chown "$user" $cache
+# Setup drive access
+su "$user" -c "gdrive account import creds/gdrive_export-***REMOVED***.tar"
+# Setup default crontabs
 crontab "$scriptpath/cron/rootcron.txt"
-su $user -c "crontab \"$scriptpath/cron/usercron.txt\""
-#copy scripts to bin
-#grep removes omitting directory warning as it is copied later
+su "$user" -c "crontab \"$scriptpath/cron/usercron.txt\""
+# Copy scripts to bin
+# Grep removes omitting directory warning as it is copied later
 cp "$scriptpath/scripts/"* $bin 2>&1 | grep -v -E 'omitting directory'
 cp "$scriptpath/scripts/check/"* $bin
-#generate default slots
+# Generate default slots
 mkdir /usr/local/slots
 slotgen 7
-#setup mail
+# Setup mail
 touch /etc/postfix/sasl_password
 chmod 600 
