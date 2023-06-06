@@ -18,7 +18,11 @@ downloadfile(){
     # shellcheck disable=2094
     gdrive files download "$1" --destination "$2" 2> error
     if grep -Eq 'fileNotDownloadable' error; then
-        gdrive files export "$1" --format txt --destination "$2"
+        gdrive files export "$1" "$2.txt"
+        mv "$2.txt" "$2"
+    fi
+    if grep -Eq 'is a directory' error; then
+        gdrive files download --recursive "$1" --destination "$2"
     fi
     rm error
 }
