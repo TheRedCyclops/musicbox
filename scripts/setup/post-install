@@ -16,8 +16,12 @@ scriptpath="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 || echo "CRITICAL: failed
 # Import libraries
 . "$scriptpath/scripts/libraries/formatlib"
 . "$scriptpath/scripts/libraries/rootpermlib"
-
-# Set the unprivileged user
+# Export the working directories and user the operations are done as
+export MUSICBOX_TMP_DIR="/var/tmp/musicbox"
+export MUSICBOX_LOG_DIR="/var/log/musicbox"
+export MUSICBOX_CFG_DIR="/etc/musicbox"
+export MUSICBOX_USER="music"
+# Add them to the default enviroment
 
 # Define locations
 cache=/var/cache/musicbox
@@ -44,18 +48,17 @@ rm /var/tmp/gdrive-$ver.tar.gz
 # Unpack the credentials to be used
 echo "Getting Credentials"
 unzip creds.tar
-user=$(grep "username=" creds/user.txt | sed -E /username=//s)
 # Enable cron
 rc-service crond start && rc-update add crond
 # Add unprivileged user
-adduser -h /home/unprivilieged-user-files "$user"
+adduser -h /home/unprivilieged-user-files "$MUSICBOX_USER"
 mkdir $cache
-chown "$user" $cache
+chown "$MUSICBOX_USER" $cache
 # Setup drive access
-su "$user" -c "gdrive account import creds/gdrive_export-***REMOVED***.tar"
+su "$MUSICBOX_USER" -c "gdrive account import creds/gdrive_export-***REMOVED***.tar"
 # Setup default crontabs
 crontab "$scriptpath/cron/rootcron.txt"
-su "$user" -c "crontab \"$scriptpath/cron/usercron.txt\""
+su "$MUSICBOX_USER" -c "crontab \"$scriptpath/cron/usercron.txt\""
 # Copy scripts to bin
 # Grep removes omitting directory warning as it is copied later
 cp "$scriptpath/scripts/"* $bin 2>&1 | grep -v -E 'omitting directory'
