@@ -18,7 +18,7 @@ if getvalue post-processing; then
     post-processor
 fi
 #Check if a critical error has happened, if so send a email about it
-if grep -Eq -- 'CRITICAL_ERROR' "$MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)"; then
+if grep -q -- 'CRITICAL_ERROR' "$MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)"; then
     wait
     alert-mail
 fi
