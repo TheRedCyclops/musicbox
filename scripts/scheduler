@@ -7,6 +7,7 @@ reloadmin=$(grep '^reload-time' /etc/musicbox/config | sed -E 's/reload-time=//'
 #validate the time
 if [ "$reloadhour" -gt 24 ]; then
     reloadhour=23
+    reloadmin=59
 fi
 if [ "$reloadhour" -gt 59 ]; then
     reloadmin=59
