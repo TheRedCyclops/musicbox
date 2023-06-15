@@ -3,11 +3,7 @@
 #Import formating
 . formatlib
 . configlib
-#export the working directories and user the operations are done as
-export MUSICBOX_TMP_DIR="/var/tmp/musicbox"
-export MUSICBOX_LOG_DIR="/var/log/musicbox"
-export MUSICBOX_CFG_DIR="/etc/musicbox"
-export MUSICBOX_USER="music"
+
 #download the necesary files
 get-configuration &
 get-schedule      &
@@ -22,7 +18,8 @@ if getvalue post-processing; then
     post-processor
 fi
 #Check if a critical error has happened, if so send a email about it
-if grep -Eq -- 'CRITICAL_ERROR' $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d); then
-wait
+if grep -Eq -- 'CRITICAL_ERROR' "$MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)"; then
+    wait
+    alert-mail
 fi
 scheduler
