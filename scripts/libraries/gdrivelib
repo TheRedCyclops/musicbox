@@ -17,11 +17,11 @@ downloadfile(){
     mkfifo error
     # shellcheck disable=2094
     gdrive files download "$1" --destination "$2" 2> error
-    if grep -Eq 'fileNotDownloadable' error; then
+    if grep -q 'fileNotDownloadable' error; then
         gdrive files export "$1" "$2.txt"
         mv "$2.txt" "$2"
     fi
-    if grep -Eq 'is a directory' error; then
+    if grep -q 'is a directory' error; then
         gdrive files download --recursive "$1" --destination "$2"
     fi
     rm error
