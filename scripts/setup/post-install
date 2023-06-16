@@ -16,15 +16,11 @@ scriptpath="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 || echo "CRITICAL: failed
 # Import libraries
 . "$scriptpath/scripts/libraries/formatlib"
 . "$scriptpath/scripts/libraries/rootpermlib"
-# Export the working directories and user the operations are done as
-export MUSICBOX_TMP_DIR="/var/tmp/musicbox"
-export MUSICBOX_LOG_DIR="/var/log/musicbox"
-export MUSICBOX_CFG_DIR="/etc/musicbox"
-export MUSICBOX_USER="music"
+# Import enviroment variables
+. "$scriptpath/scripts/musicbox-env"
 # Add them to the default enviroment
 
 # Define locations
-cache=/var/cache/musicbox
 bin=/usr/local/bin
 # Enable all extra repos
 cat <<EOF > /etc/apk/repositories
@@ -38,7 +34,7 @@ https://dl-cdn.alpinelinux.org/alpine/v3.18/community
 EOF
 # Setup Network Time Protocol
 setup-ntp
-#Install packages
+# Install packages
 apk add ffmpeg mp3gain@testing mp3val@testing s-nail postfix pulseaudio pulseaudio-utils vlc yt-dlp
 # Download and install gdrive
 ver=3.9.0
@@ -51,9 +47,9 @@ unzip creds.tar
 # Enable cron
 rc-service crond start && rc-update add crond
 # Add unprivileged user
-adduser -h /home/unprivilieged-user-files "$MUSICBOX_USER"
-mkdir $cache
-chown "$MUSICBOX_USER" $cache
+adduser -h /opt/musicbox-unprivilieged-user-files "$MUSICBOX_USER"
+mkdir "$MUSICBOX_CACHE_DIR"
+chown "$MUSICBOX_USER" "$MUSICBOX_CACHE_DIR"
 # Setup drive access
 su "$MUSICBOX_USER" -c "gdrive account import creds/gdrive_export-***REMOVED***.tar"
 # Setup default crontabs
