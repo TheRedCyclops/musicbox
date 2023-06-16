@@ -1,0 +1,36 @@
+#!/bin/ash
+# shellcheck shell=dash disable=2012,1091
+. formatlib
+# Check if argument is correctly formated if it's not try to check if provided in antoher format and convert
+date -d "$1" 1> /dev/null|| critical "STOP TIME NOT PROVIDED OR PROVIDED IN AN UNRECOGNIZED FORMAT" && exit 1
+stoptime=$(date -d "$1" +%H%M)
+# Get the latest song not on the played list
+while [ -z "$selectedsong" ]; do
+latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -xt | head -n 1)
+if ! grep -q "$latestsong" "$MUSICBOX_CACHE_DIR/played-songs"; then
+selectedsong=$latestsong
+fi
+done
+#Add it to the played list
+echo "$selectedsong" >> "$MUSICBOX_CACHE_DIR/played-songs"
+# Play the song until the selected time or the next one is needed
+vlc "$MUSICBOX_CACHE_DIR/music/$selectedsong" &
+pid=$?
+
+while kill -s 0 $pid; do
+# If the song is playing after the stop time fade the sound kill it and restore the sound
+if [ "$(date +%H%M)" -gt "$stoptime" ]; then
+fade
+pkill $pid
+#restore volume
+for sink in $(pacmd list-sinks | grep 'index:' | cut -b12-)
+    do
+        pactl set-sink-volume "$sink" 100%
+    done
+fi
+sleep 0.25
+done
+# If the stop time is not reached relaunch the program
+if [ "$(date +%H%M)" -lt "$stoptime" ]; then
+    music-player "$@"
+fi
