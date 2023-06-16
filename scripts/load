@@ -5,23 +5,22 @@ echo $$ > /run/musicbox.pid
 # Import libraries
 . formatlib
 . configlib
-
-#download the necesary files
-get-configuration &
-get-schedule      &
-get-songs         &
-#Check if post-processing is enabled
-#Wait to finish getting the configuration
+# Download the necesary files
+down-config   &
+down-schedule &
+down-songs    &
+# Check if post-processing is enabled
+# Wait to finish getting the configuration
 wait "$(pidof get-configuration)"
 if getvalue post-processing; then
-    #Wait for the all the songs to be downloaded
+    # Wait for the all the songs to be downloaded
     wait "$(pidof get-songs)"
-    #run the post-processor
+    # Run the post-processor
     post-processor
 fi
-#Check if a critical error has happened, if so send a email about it
+# Check if a critical error has happened, if so send a email about it
+wait
 if grep -q -- 'CRITICAL_ERROR' "$MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)"; then
-    wait
     alert-mail
 fi
 scheduler
