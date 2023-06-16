@@ -1,6 +1,8 @@
 #!/bin/ash
 # shellcheck shell=dash disable=1091
-#Import formating
+# Create pidfile
+echo $$ > /run/musicbox.pid
+# Import libraries
 . formatlib
 . configlib
 
@@ -23,3 +25,4 @@ if grep -q -- 'CRITICAL_ERROR' "$MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)"; then
     alert-mail
 fi
 scheduler
+rm /run/musicbox.pid
