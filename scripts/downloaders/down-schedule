@@ -1,4 +1,14 @@
 #!/bin/ash
-# shellcheck shell=dash
+# shellcheck shell=dash disable=1091
+# Import libraries
+. formatlib
+. gdrivelib
+# Download the schedule
+downloadfile "$(getfileid [Ss]chedule)" "$MUSICBOX_CACHE_DIR"/schedule
 #Remove comments for check
-grep -v -E '^#.*' "$1"
+grep -v -E '^[ ]*#.*' "$MUSICBOX_CACHE_DIR"/schedule > "$MUSICBOX_CACHE_DIR"/schedule-clean
+mv "$MUSICBOX_CACHE_DIR"/schedule-clean "$MUSICBOX_CACHE_DIR"/schedule
+# Verify the syntax
+if grep -v -E -q '(\*||[0-9]{2}:[0-9]{2})[\r\t\f\v ]+(\*||[0-9]{2}:[0-9]{2})[\r\t\f\v ]*' "$MUSICBOX_CACHE_DIR"/schedule; then
+    error "Schedule is misformated!"
+fi
