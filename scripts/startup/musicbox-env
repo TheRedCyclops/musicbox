@@ -1,0 +1,7 @@
+#!/bin/sh
+#Set the enviroment variables
+export MUSICBOX_TMP_DIR="/var/tmp/musicbox"
+export MUSICBOX_LOG_DIR="/var/log/musicbox"
+export MUSICBOX_CFG_DIR="/etc/musicbox"
+export MUSICBOX_CACHE_DIR="/var/cache/musicbox"
+export MUSICBOX_USER="music"
