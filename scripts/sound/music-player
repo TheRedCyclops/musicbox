@@ -17,8 +17,8 @@ exit 0
 fi
 
 # Check if argument is correctly formated if it's not try to check if provided in antoher format and convert
-date -d "$2" 1> /dev/null|| critical "STOP TIME NOT PROVIDED OR PROVIDED IN AN UNRECOGNIZED FORMAT" && exit 1
-stoptime=$(date -d "$2" +%H%M)
+date -d "$1" 1> /dev/null|| critical "STOP TIME NOT PROVIDED OR PROVIDED IN AN UNRECOGNIZED FORMAT" && exit 1
+stoptime=$(date -d "$1" +%H%M)
 # Get the latest song not on the played list
 while [ -z "$selectedsong" ]; do
 latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -xt | head -n 1)
