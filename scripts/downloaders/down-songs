@@ -1,18 +1,21 @@
 #!/bin/ash
 # shellcheck shell=dash disable=1091
-#Import libraries
-. formating
-#get the song list
-cd /tmp/musicbox/ || warn "Temporary directory doesn't exist, attempting to create it"
-gdrive files download "$(gdfileidlib 'song[ \-\.]list')"
-#rename whatever it was named as to a normalized name
+# Import libraries
+. formatlib
+. gdrivelib
+# Get the song list
+downloadfile .ong..ist "$MUSICBOX_CACHE_DIR"/song-list
+# Rename whatever it was named as to a normalized name
 mv -- *ong*ist song-list
-#check and format the list
-#get if any links are in the file if not warn that only using the extra songs
+# Check and format the list
+# Get if any links are in the file if not warn that only using the extra songs
 grep -Eq -- '^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$' /tmp/musicbox/song-list|| warn "No links were found!, only using songs from extra-songs folder!"
-#remove comments
+# Remove comments
 grep -o '^[^#]*' file /tmp/song-list > clean-song-list
-#susbstitue newlines with spaces
+# Susbstitue newlines with spaces
 tr '\n' ' ' < /tmp/musicbox/clean-song-list > song-list
 rm clean-song-list 
+# Download the songs
+# From Youtube
 yt-dlp -x --audio-format mp3 --audio-quality 0 --sponsorblock-remove all -o "/var/cache/music/%(id).%(ext)s" "$(cat song-list)"
+# From the extra songs folder
