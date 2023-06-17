@@ -1,0 +1,10 @@
+#!/sbin/openrc-run
+# shellcheck shell=sh
+depend(){
+    need net
+    need pulseaudio
+}
+[ -f /etc/musicbox-env ] && . /etc/musicbox-env
+command="/usr/bin/load"
+command_args=""
+pidfile="/run/musicbox.pid"
