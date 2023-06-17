@@ -1,5 +1,5 @@
 #!/bin/ash
 # shellcheck shell=dash disable=1091
 . formating
-# shellcheck disable=2046 # we're passing each song as a diferent argument
-mp3gain $(ls /var/cache/musicbox/$(date +%Y-%m-)/*)
+# shellcheck disable=2046 # We're passing each song as a diferent argument
+mp3gain -a -k $(ls "$MUSICBOX_CACHE_DIR"/$(date +%Y-%m-)/*)
