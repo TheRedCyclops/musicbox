@@ -21,10 +21,20 @@ date -d "$1" 1> /dev/null|| critical "STOP TIME NOT PROVIDED OR PROVIDED IN AN U
 stoptime=$(date -d "$1" +%H%M)
 # Get the latest song not on the played list
 while [ -z "$selectedsong" ]; do
-latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -xt | head -n 1)
-if ! grep -q "$latestsong" "$MUSICBOX_CACHE_DIR/played-songs"; then
-selectedsong=$latestsong
-fi
+    i=1
+    # Loop through the songs until the latest one that hasn't been played is reached
+    # shellcheck disable=2012
+    latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -tw 1 | sed "${i}q;d")
+    if ! grep -q "$latestsong" "$MUSICBOX_CACHE_DIR/played-songs"; then
+        selectedsong=$latestsong
+    else
+        i=$((i+1))
+    fi
+# Check for the case of no songs
+    if [ "$(ls "$MUSICBOX_CACHE_DIR/music/*")" = '' ]; then
+        error "No songs found when searching for the latest!"
+        break;
+    fi
 done
 #Add it to the played list
 echo "$selectedsong" >> "$MUSICBOX_CACHE_DIR/played-songs"

@@ -3,12 +3,12 @@
 # Create pidfile
 echo $$ > /run/musicbox.pid
 # Import libraries
-. formatlib
-. configlib
+. "$MUSICBOX_BIN/libraries/formatlib"
+. "$MUSICBOX_BIN/libraries/configlib"
 # Download the necesary files
-down-config   &
-down-schedule &
-down-songs    &
+"$MUSICBOX_BIN/downloaders/down-config"   &
+"$MUSICBOX_BIN/downloaders/down-schedule" &
+"$MUSICBOX_BIN/downloaders/down-songs"    &
 # Check if post-processing is enabled
 # Wait to finish getting the configuration
 wait "$(pidof get-configuration)"
@@ -16,7 +16,7 @@ if getvalue post-processing; then
     # Wait for the all the songs to be downloaded
     wait "$(pidof get-songs)"
     # Run the post-processor
-    post-processor
+    "$MUSICBOX_BIN/sound/post-processor"
 fi
 # Check if a critical error has happened, if so send a email about it
 wait

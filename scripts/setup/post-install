@@ -56,9 +56,9 @@ su "$MUSICBOX_USER" -c "gdrive account import creds/gdrive_export-***REMOVED***.
 crontab "$scriptpath/cron/rootcron.txt"
 su "$MUSICBOX_USER" -c "crontab \"$scriptpath/cron/usercron.txt\""
 # Copy scripts to bin
-# Grep removes omitting directory warning as it is copied later
-cp "$scriptpath/scripts/"* $bin 2>&1 | grep -v -E 'omitting directory'
-cp "$scriptpath/scripts/check/"* $bin
+# Grep removes omitting dir  ectory warning as it is copied later
+cp "$scriptpath/scripts/startup/musicbox-load" $bin 2>&1 | grep -v -E 'omitting directory'
+cp "$scriptpath/scripts/"* "$MUSICBOX_BIN"
 # Generate default slots
 mkdir /usr/local/slots
 slotgen 7
