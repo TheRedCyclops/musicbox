@@ -1,5 +1,5 @@
-#!/bin/ash
-# shellcheck shell=dash disable=1091
+#!/bin/bash
+# shellcheck shell=bash disable=1091
 # Import libraries
 . formatlib
 . configlib
@@ -46,6 +46,11 @@ for i in read -n $schedule; do
     if [ "$stoptime" = "*" ]; then 
         start="$(date "+0   %M    %H    *   *   *" "$starttime")"
         printf "%s  music-player --onesong | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)\n" "$start" | crontab -
+    fi
+# if the stop time is set to "short" then play the short.mp3 audio
+    if [ "$stoptime" = "*" ]; then 
+        start="$(date "+0   %M    %H    *   *   *" "$starttime")"
+        printf "%s  music-player --short | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)\n" "$start" | crontab -
     fi
 # if only stop time is set get what the latest unplayed song will be and sustract the length from the time to stop
     virtualplayedsonglist="$MUSICBOX_CACHE_DIR/virtual-played-song-list"

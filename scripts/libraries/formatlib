@@ -1,5 +1,5 @@
-#!/bin/ash
-# shellcheck shell=dash
+#!/bin/bash
+# shellcheck shell=bash
 
 # Copyright The Red Cyclops © 2023
 # This program is free software: you can redistribute it and/or modify it under the terms of

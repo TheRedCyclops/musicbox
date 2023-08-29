@@ -1,5 +1,5 @@
-#!/bin/ash
-# shellcheck shell=dash disable=1091
+#!/bin/bash
+# shellcheck shell=bash disable=1091
 #Import libraries
 . formatlib
 
@@ -11,3 +11,5 @@ The issue seems to be the following $latest_critical_error
 please solve it and reply to this email with: "RELOAD" as the subject
 full logs are attached
 EOF
+
+#TODO: Make it work

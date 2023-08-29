@@ -1,5 +1,5 @@
-#!/bin/ash
-# shellcheck shell=dash
+#!/bin/bash
+# shellcheck shell=bash
 volume='-2%'
 speed="0.1"
 

@@ -1,5 +1,5 @@
-#!/bin/ash
-# shellcheck shell=dash disable=1091
+#!/bin/bash
+# shellcheck shell=bash disable=1091
 #Import libraries
 . formating
 slotnumber=$(basename "$0" | sed 's/slot\-//')

@@ -1,5 +1,5 @@
-#!/bin/ash
-# shellcheck shell=dash disable=2012,1091
+#!/bin/bash
+# shellcheck shell=bash disable=2012,1091
 . formatlib
 #Check if we only want to play one song
 if [ "$1" = "--onesong" ]; then
@@ -15,7 +15,10 @@ echo "$selectedsong" >> "$MUSICBOX_CACHE_DIR/played-songs"
 vlc "$MUSICBOX_CACHE_DIR/music/$selectedsong" &
 exit 0
 fi
-
+# Checki if only short.mp3 is being requested
+if [ "$1" = "--short" ]; then
+    vlc "$MUSICBOX_CACHE_DIR/music/short.mp3"
+fi
 # Check if argument is correctly formated if it's not try to check if provided in antoher format and convert
 date -d "$1" 1> /dev/null|| critical "STOP TIME NOT PROVIDED OR PROVIDED IN AN UNRECOGNIZED FORMAT" && exit 1
 stoptime=$(date -d "$1" +%H%M)
