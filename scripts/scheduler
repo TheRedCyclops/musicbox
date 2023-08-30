@@ -5,6 +5,7 @@
 . configlib
 # Get when the program should run again
 getvalue reload-time
+# Separate it into Hours and Minutes
 # Validate the time
 if [ "$reloadhour" -gt 24 ]; then
     reloadhour=23
@@ -14,43 +15,38 @@ if [ "$reloadhour" -gt 59 ]; then
     reloadmin=59
 fi
 
-# Write base crontab 
+# Write start of crontab to a temporary file
 info "Writting crontab"
-if crontab - <<EOF 
+echo "
 #User Cron tab
 # min    hour    day    month    weekday    command
   $reloadmin      $reloadhour       *      *        1-5        load | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)
+" > "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 
-EOF
-    then
-        info "Successfully wrote base crontab"
-    else
-        error "The Writting of the base crontab failed"
-fi
 # Set the schedule file
 schedule="$MUSICBOX_CACHE_DIR/schedule"
 # Create functions to recognise start and end written in file
 getstarttime(){
 # Pass the entire line outputs start time in HH:MM format
-    printf "%s" "$1" | sed  -E -e 's/\s[0-9]{2}:[0-9]{2}$//' 
+    printf "%s" "$1" | sed  -E -e 's/\s+(short|\*|[0-9]{1,2}:[0-9]{1,2})$//m' 
 }
 getstoptime(){
 # Pass the entire line outputs stop time in HH:MM format
-    printf "%s" "$1" | sed  -E -e 's/^[0-9]{2}:[0-9]{2}\s//' 
+    printf "%s" "$1" | sed  -E -e 's/^([0-9]{1,2}:[0-9]{1,2}|\*)\s+//m' 
 }
 # Parse schedule
 for i in read -n $schedule; do
-    starttime=$(sed "${i}q;d" "$schedule" | sed -E -e 's/^\d{2}:\d{2}//gm')
-    stoptime=$(sed "${i}q;d" "$schedule" | sed -E -e 's/\d{2}:\d{2}$//gm')
+    starttime=$(getstarttime "$(sed "${i}q;d" "$schedule")")
+    stoptime=$(getstoptime "$(sed "${i}q;d" "$schedule")")
 # if only start time is set start at the start time
     if [ "$stoptime" = "*" ]; then 
         start="$(date "+0   %M    %H    *   *   *" "$starttime")"
-        printf "%s  music-player --onesong | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)\n" "$start" | crontab -
+        printf "%s  music-player --onesong | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)\n" "$start" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
     fi
 # if the stop time is set to "short" then play the short.mp3 audio
     if [ "$stoptime" = "*" ]; then 
         start="$(date "+0   %M    %H    *   *   *" "$starttime")"
-        printf "%s  music-player --short | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)\n" "$start" | crontab -
+        printf "%s  music-player --short | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)\n" "$start" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
     fi
 # if only stop time is set get what the latest unplayed song will be and sustract the length from the time to stop
     virtualplayedsonglist="$MUSICBOX_CACHE_DIR/virtual-played-song-list"
@@ -78,6 +74,7 @@ for i in read -n $schedule; do
             echo "$latestsong" >> "$virtualplayedsonglist"
          else
             # In this case the song is going to be played for a predetermined amount of time
+            #TODO: Actualy count the songs
             getstarttime "$j"
             getstoptime "$j"
             
@@ -86,14 +83,15 @@ for i in read -n $schedule; do
             error "The start time wasn't recognised for song $i"
         fi
 
-         #duration=$(ffmpeg -i $song 2>&1| grep "Duration" | sed -e 's/^ *Duration: //' -e 's/, .*//')
-
         done
     
     
-# if both are set just pass the stop time to the music player and start at starttime
+# If both are set just pass the stop time to the music player and start at starttime
     if [ "$stoptime" != "*" ] && [ "$starttime" != "*" ]; then 
         start="$(date "+%M    %H" "$starttime")"
         printf "%s\n" "$start"
     fi
 done
+# Schedule Cleanup
+
+date "+%M   %H" "$(getvalue cleanuptime)" 

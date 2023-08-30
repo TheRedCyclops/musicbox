@@ -22,20 +22,8 @@ scriptpath="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 || echo "CRITICAL: failed
 
 # Define locations
 bin=/usr/local/bin
-# Enable all extra repos
-cat <<EOF > /etc/apk/repositories
-#normal repos
-https://dl-cdn.alpinelinux.org/alpine/v3.18/main
-https://dl-cdn.alpinelinux.org/alpine/v3.18/community
-#extra repos
-@edge         https://dl-cdn.alpinelinux.org/alpine/edge/main
-@edgecomunity https://dl-cdn.alpinelinux.org/alpine/edge/community
-@testing      https://dl-cdn.alpinelinux.org/alpine/edge/testing
-EOF
-# Setup Network Time Protocol
-setup-ntp
 # Install packages
-apk add ffmpeg mp3gain@testing mp3val@testing s-nail postfix pulseaudio pulseaudio-utils vlc yt-dlp
+apt install ffmpeg mp3gain mp3val s-nail postfix pulseaudio pulseaudio-utils vlc yt-dlp
 # Download and install gdrive
 ver=3.9.0
 wget "https://github.com/glotlabs/gdrive/releases/download/$ver/gdrive_linux-x64.tar.gz" -O /var/tmp/gdrive-$ver.tar.gz
@@ -45,7 +33,7 @@ rm /var/tmp/gdrive-$ver.tar.gz
 echo "Getting Credentials"
 unzip creds.tar
 # Enable cron
-rc-service crond start && rc-update add crond
+systemctl enable cron --now
 # Add unprivileged user
 adduser -h /opt/musicbox-unprivilieged-user-files "$MUSICBOX_USER"
 mkdir "$MUSICBOX_CACHE_DIR"
@@ -56,12 +44,9 @@ su "$MUSICBOX_USER" -c "gdrive account import creds/gdrive_export-***REMOVED***.
 crontab "$scriptpath/cron/rootcron.txt"
 su "$MUSICBOX_USER" -c "crontab \"$scriptpath/cron/usercron.txt\""
 # Copy scripts to bin
-# Grep removes omitting dir  ectory warning as it is copied later
+# Grep removes omitting directory warning as it is copied later
 cp "$scriptpath/scripts/startup/musicbox-load" $bin 2>&1 | grep -v -E 'omitting directory'
 cp "$scriptpath/scripts/"* "$MUSICBOX_BIN"
-# Generate default slots
-mkdir /usr/local/slots
-slotgen 7
 # Setup mail
 touch /etc/postfix/sasl_password
 chmod 600 

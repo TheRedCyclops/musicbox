@@ -4,7 +4,7 @@
 . formatlib
 . gdrivelib
 # Get the song list
-downloadfile .ong..ist "$MUSICBOX_CACHE_DIR"/song-list
+downloadfile "Song List" "$MUSICBOX_CACHE_DIR"/song-list
 # Rename whatever it was named as to a normalized name
 mv -- *ong*ist song-list
 # Check and format the list

@@ -3,5 +3,5 @@
 #Import formating
 . formating
 #download
-gdrive download "$(get-file-id '.*configuration.*')"
+gdrive download "$(get-file-id 'Configuration')"
 grep -v '#.*'
