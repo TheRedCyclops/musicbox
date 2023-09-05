@@ -4,15 +4,19 @@
 . formatlib
 . configlib
 # Get when the program should run again
-getvalue reload-time
+reloadtime=$(getvalue reload-time)
 # Separate it into Hours and Minutes
+reloadhour=$(echo "$reloadtime" | sed -E 's/:\d{1,2}//')
+reloadmin=$(echo "$reloadtime" | sed -E 's/\d{1,2}://')
 # Validate the time
 if [ "$reloadhour" -gt 24 ]; then
     reloadhour=23
     reloadmin=59
+    warn "Hour field on schedule was over 23 setting to 23 and minutes to 59"
 fi
-if [ "$reloadhour" -gt 59 ]; then
+if [ "$reloadmin" -gt 59 ]; then
     reloadmin=59
+    warn "Minute field on schedule was over 59 setting to 59"
 fi
 
 # Write start of crontab to a temporary file
@@ -20,7 +24,8 @@ info "Writting crontab"
 echo "
 #User Cron tab
 # min    hour    day    month    weekday    command
-  $reloadmin      $reloadhour       *      *        1-5        load | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)
+  @reboot   load | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d).log
+  $reloadmin      $reloadhour       *      *        1-5        load | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)/.log
 " > "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 
 # Set the schedule file

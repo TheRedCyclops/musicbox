@@ -1,6 +1,6 @@
 #!/bin/bash
 # shellcheck shell=bash disable=2012,1091
-. formatlib
+. scripts/libraries/formatlib
 #Check if we only want to play one song
 if [ "$1" = "--onesong" ]; then
  while [ -z "$selectedsong" ]; do

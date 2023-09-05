@@ -1,28 +1,31 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
 #Import libraries
-. formatlib
+source "$MUSICBOX_BIN/libraries/formatlib"
 
 # Add the functions
 # Gets the File ID from google drive of a file specified with a regex
 getfileid(){
     # Allow for searching inside folders
     if [ "$1" = "--parent" ]; then
-        gdrive files list --parent "$2" | grep -i -E "$3" | sed -E 's/[ ].*//g'
+        "$MUSICBOX_BIN/gdrive" files list --parent "$2" | grep -i -E "$3" | sed -E 's/[ ].*//g'
     fi
-    gdrive files list | grep -i -E "$1" | sed -E 's/[ ].*//g'
+    "$MUSICBOX_BIN/gdrive" files list | grep -i -E "$1" | sed -E 's/[ ].*//g'
 }
 # Download a file or folder from google drive given a file id to a given path
 downloadfile(){
+    if [ -z "$2" ]; then
+    error "Output file wasn't especifed"
+    fi
     mkfifo error
     # shellcheck disable=2094
-    gdrive files download "$1" --destination "$2" 2> error
+    "$MUSICBOX_BIN/gdrive" files download "$1" --destination "$2" 2> error
     if grep -q 'fileNotDownloadable' error; then
-        gdrive files export "$1" "$2.txt"
+        "$MUSICBOX_BIN/gdrive" files export "$1" "$2.txt"
         mv "$2.txt" "$2"
     fi
     if grep -q 'is a directory' error; then
-        gdrive files download --recursive "$1" --destination "$2"
+        "$MUSICBOX_BIN/gdrive" files download --recursive "$1" --destination "$2"
     fi
     rm error
 }

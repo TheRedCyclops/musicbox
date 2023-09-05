@@ -1,9 +1,6 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
-#Import libraries
+# Import libraries
 source "$MUSICBOX_BIN/libraries/formatlib"
-
-#Add the functions
-rootcheck(){
-    [ "$(id -u)" -eq 0 ] 
-}
+# Normalize Volume
+mp3gain 

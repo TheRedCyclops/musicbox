@@ -4,7 +4,7 @@
 . formatlib
 . gdrivelib
 # Download the schedule
-downloadfile "$(getfileid [Ss]chedule)" "$MUSICBOX_CACHE_DIR"/schedule
+downloadfile "$(getfileid Schedule)" "$MUSICBOX_CACHE_DIR"/schedule
 #Remove comments for check
 grep -v -E '^[ ]*#.*' "$MUSICBOX_CACHE_DIR"/schedule > "$MUSICBOX_CACHE_DIR"/schedule-clean
 mv "$MUSICBOX_CACHE_DIR"/schedule-clean "$MUSICBOX_CACHE_DIR"/schedule

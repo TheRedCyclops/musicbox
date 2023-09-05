@@ -1,7 +1,7 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
 #Import libraries
-. formating
+. formatlib
 slotnumber=$(basename "$0" | sed 's/slot\-//')
 if [ ! -f "/etc/musicbox/slots/slot$slotnumber.conf" ]; then
     error "configuration for slot $slotnumber is missing, it is pertinent creating it!! Using default for now"

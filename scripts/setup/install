@@ -11,27 +11,30 @@
 # You should have received a copy of the GNU General Public License along with this program.
 # If not, see <https://www.gnu.org/licenses/>. 
 
-# Get the path to the script
-scriptpath="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 || echo "CRITICAL: failed to get the path to the script" ; pwd -P )"
+# Get the path of the instalation directory
+installpath="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 || echo "CRITICAL: failed to get the path to installation directory" ; pwd -P | sed 's/scripts\/setup//')"
 # Import libraries
-. "$scriptpath/scripts/libraries/formatlib"
-. "$scriptpath/scripts/libraries/rootpermlib"
+source "$installpath/scripts/libraries/formatlib"
+source "$installpath/scripts/libraries/rootpermlib"
 # Import enviroment variables
-. "$scriptpath/scripts/musicbox-env"
+source "$installpath/scripts/musicbox-env"
 # Add them to the default enviroment
-
-# Define locations
-bin=/usr/local/bin
+cp "$installpath/scripts/musicbox-env" /usr/lib/enviroment.d/musicbox.conf
 # Install packages
 apt install ffmpeg mp3gain mp3val s-nail postfix pulseaudio pulseaudio-utils vlc yt-dlp
 # Download and install gdrive
+# Create a temporary directory to store the download
+tmpdir=$(mktemp -d)
+# Set it so only this user can write to it
+chmod 700 $tmpdir
 ver=3.9.0
-wget "https://github.com/glotlabs/gdrive/releases/download/$ver/gdrive_linux-x64.tar.gz" -O /var/tmp/gdrive-$ver.tar.gz
-tar xzf /var/tmp/gdrive-$ver.tar.gz -C $bin/
-rm /var/tmp/gdrive-$ver.tar.gz
+wget "https://github.com/glotlabs/gdrive/releases/download/$ver/gdrive_linux-x64.tar.gz" -O $tmpdir/gdrive-$ver.tar.gz
+tar xzf /var/tmp/gdrive-$ver.tar.gz -C $MUSICBOX_BIN/
+chmod +x $MUSICBOX_BIN/gdrive
+rm -R $tmpdir
 # Unpack the credentials to be used
 echo "Getting Credentials"
-unzip creds.tar
+unzip $installpath/creds.tar
 # Enable cron
 systemctl enable cron --now
 # Add unprivileged user
@@ -39,14 +42,12 @@ adduser -h /opt/musicbox-unprivilieged-user-files "$MUSICBOX_USER"
 mkdir "$MUSICBOX_CACHE_DIR"
 chown "$MUSICBOX_USER" "$MUSICBOX_CACHE_DIR"
 # Setup drive access
-su "$MUSICBOX_USER" -c "gdrive account import creds/gdrive_export-***REMOVED***.tar"
+su "$MUSICBOX_USER" -c "gdrive account import $installpath/creds/gdrive_export-***REMOVED***.tar"
 # Setup default crontabs
-crontab "$scriptpath/cron/rootcron.txt"
-su "$MUSICBOX_USER" -c "crontab \"$scriptpath/cron/usercron.txt\""
+crontab "$installpath/cron/rootcron.txt"
+su "$MUSICBOX_USER" -c "crontab \"$installpath/cron/usercron.txt\""
 # Copy scripts to bin
-# Grep removes omitting directory warning as it is copied later
-cp "$scriptpath/scripts/startup/musicbox-load" $bin 2>&1 | grep -v -E 'omitting directory'
-cp "$scriptpath/scripts/"* "$MUSICBOX_BIN"
+find scripts -type f -exec cp {} $MUSICBOX_BIN \;
 # Setup mail
 touch /etc/postfix/sasl_password
 chmod 600 

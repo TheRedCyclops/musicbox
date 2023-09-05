@@ -1,12 +1,12 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
 # Import libraries
-. formatlib
+source "$MUSICBOX_BIN/libraries/formatlib"
 . gdrivelib
 # Get the song list
 downloadfile "Song List" "$MUSICBOX_CACHE_DIR"/song-list
 # Rename whatever it was named as to a normalized name
-mv -- *ong*ist song-list
+mv -- "Song List" song-list
 # Check and format the list
 # Get if any links are in the file if not warn that only using the extra songs
 grep -Eq -- '^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$' /tmp/musicbox/song-list|| warn "No links were found!, only using songs from extra-songs folder!"

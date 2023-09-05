@@ -1,5 +1,0 @@
-#!/bin/bash
-# shellcheck shell=bash disable=1091
-#Import libraries
-. formatlib
-. configlib
