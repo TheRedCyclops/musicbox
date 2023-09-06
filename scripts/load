@@ -3,8 +3,8 @@
 # Create pidfile
 echo $$ > /run/musicbox.pid
 # Import libraries
-. "$MUSICBOX_BIN/libraries/formatlib"
-. "$MUSICBOX_BIN/libraries/configlib"
+source "$MUSICBOX_BIN/libraries/formatlib"
+source "$MUSICBOX_BIN/libraries/configlib"
 # Download the necesary files
 "$MUSICBOX_BIN/downloaders/down-config"   &
 "$MUSICBOX_BIN/downloaders/down-schedule" &
@@ -18,10 +18,10 @@ if getvalue post-processing; then
     # Run the post-processor
     "$MUSICBOX_BIN/sound/post-processor"
 fi
-# Check if a critical error has happened, if so send a email about it
 wait
-if grep -q -- 'CRITICAL_ERROR' "$MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)"; then
-    alert-mail
+# Check for the case of no songs
+if [ "$(ls "$MUSICBOX_CACHE_DIR/music/*")" = '' ]; then
+error "No songs found!"
 fi
 scheduler
 rm /run/musicbox.pid

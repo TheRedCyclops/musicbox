@@ -3,4 +3,5 @@
 for song in "$@"; do
  file "$song" | grep "Audio File" || warn "one of the files in extra songs wasn't a song or a song wasn't correctly downloaded!" && continue
  mp3val -f "$song"
+ info "$(mp3info "%b corrupted audio frames")"
 done

@@ -9,45 +9,58 @@
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program.
-# If not, see <https://www.gnu.org/licenses/>. 
+# If not, see <https://www.gnu.org/licenses/>.
 
-# Get the path of the instalation directory
-installpath="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 || echo "CRITICAL: failed to get the path to installation directory" ; pwd -P | sed 's/scripts\/setup//')"
-# Import libraries
-source "$installpath/scripts/libraries/formatlib"
-source "$installpath/scripts/libraries/rootpermlib"
+# Get the path of the instalation directory [WORKING]
+    installpath="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 || echo "CRITICAL: failed to get the path to installation directory" ; pwd -P | sed 's/scripts\/setup//')"
+# Import libraries [WORKING]
+    source "$installpath/scripts/libraries/formatlib"
+    source "$installpath/scripts/libraries/rootpermlib"
+# Check for root access [WORKING]
+    if ! rootcheck; then
+    critical "This Script must be run as root!"
+    exit 1
+    fi
 # Import enviroment variables
-source "$installpath/scripts/musicbox-env"
-# Add them to the default enviroment
-cp "$installpath/scripts/musicbox-env" /usr/lib/enviroment.d/musicbox.conf
-# Install packages
-apt install ffmpeg mp3gain mp3val s-nail postfix pulseaudio pulseaudio-utils vlc yt-dlp
-# Download and install gdrive
-# Create a temporary directory to store the download
-tmpdir=$(mktemp -d)
-# Set it so only this user can write to it
-chmod 700 $tmpdir
-ver=3.9.0
-wget "https://github.com/glotlabs/gdrive/releases/download/$ver/gdrive_linux-x64.tar.gz" -O $tmpdir/gdrive-$ver.tar.gz
-tar xzf /var/tmp/gdrive-$ver.tar.gz -C $MUSICBOX_BIN/
-chmod +x $MUSICBOX_BIN/gdrive
-rm -R $tmpdir
-# Unpack the credentials to be used
-echo "Getting Credentials"
-unzip $installpath/creds.tar
+    source "$installpath/scripts/musicbox-env"
+    # Add them to the default enviroment
+    cp "$installpath/scripts/musicbox-env" /usr/lib/enviroment.d/musicbox.conf
+# Install packages [WORKING]
+    apt install ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc yt-dlp mp3info
+    # Download and install gdrive
+        # Create a temporary directory to store the download
+        tmpdir=$(mktemp -d)
+        # Set it so only this user can write to it
+        chmod 700 "$tmpdir"
+        # Download the binary
+        ver=3.9.0
+        wget "https://github.com/glotlabs/gdrive/releases/download/$ver/gdrive_linux-x64.tar.gz" -O "$tmpdir/gdrive-$ver.tar.gz"
+        # Unpack the binary into the binaries directory
+        tar xzf /var/tmp/gdrive-$ver.tar.gz -C "$MUSICBOX_BIN/"
+        # Make the binary executable
+        chmod +x "$MUSICBOX_BIN"/gdrive
+        # Remove all temporary files
+        rm -R "$tmpdir"
+# Unpack the credentials
+    echo "Getting Credentials"
+    mkdir "$installpath/creds"
+    unzip "$installpath/creds.zip" -d "$installpath/creds"
 # Enable cron
-systemctl enable cron --now
+    systemctl enable --now cron
 # Add unprivileged user
-adduser -h /opt/musicbox-unprivilieged-user-files "$MUSICBOX_USER"
-mkdir "$MUSICBOX_CACHE_DIR"
-chown "$MUSICBOX_USER" "$MUSICBOX_CACHE_DIR"
-# Setup drive access
-su "$MUSICBOX_USER" -c "gdrive account import $installpath/creds/gdrive_export-***REMOVED***.tar"
+    adduser -h /opt/musicbox-unprivilieged-user-files "$MUSICBOX_USER"
+    # Allow it to play sound
+    usermod -aG sound "$MUSICBOX_USER"
+    # Give it access to the cache directory
+    mkdir "$MUSICBOX_CACHE_DIR"
+    chown "$MUSICBOX_USER" "$MUSICBOX_CACHE_DIR"
+    # Setup drive access
+    su "$MUSICBOX_USER" -c "gdrive account import $installpath/creds/gdrive_export-***REMOVED***.tar"
 # Setup default crontabs
-crontab "$installpath/cron/rootcron.txt"
-su "$MUSICBOX_USER" -c "crontab \"$installpath/cron/usercron.txt\""
+    # Root Crontab
+    crontab "$installpath/cron/rootcron.txt"
+    # User Crontab
+    su "$MUSICBOX_USER" -c "crontab \"$installpath/cron/usercron.txt\""
 # Copy scripts to bin
-find scripts -type f -exec cp {} $MUSICBOX_BIN \;
-# Setup mail
-touch /etc/postfix/sasl_password
-chmod 600 
+    # Gets all files and sends them as arguments to copy that copies them to the binaries directory
+    find scripts -type f -exec cp {} "$MUSICBOX_BIN" \;

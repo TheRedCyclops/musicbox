@@ -1,21 +1,25 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
 # Import libraries
-source "$MUSICBOX_BIN/libraries/formatlib"
-. gdrivelib
+source "$MUSICBOX_BIN/formatlib"
+source "$MUSICBOX_BIN/gdrivelib"
 # Get the song list
-downloadfile "Song List" "$MUSICBOX_CACHE_DIR"/song-list
-# Rename whatever it was named as to a normalized name
-mv -- "Song List" song-list
+downloadfile "$(getfileid "Song List")" "$MUSICBOX_CACHE_DIR"/song-list
 # Check and format the list
 # Get if any links are in the file if not warn that only using the extra songs
-grep -Eq -- '^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$' /tmp/musicbox/song-list|| warn "No links were found!, only using songs from extra-songs folder!"
+grep -Eq -- '^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$' "$MUSICBOX_TMP_DIR/song-list"|| warn "No links were found!, only using songs from extra-songs folder!"
 # Remove comments
-grep -o '^[^#]*' file /tmp/song-list > clean-song-list
+grep -o '^[^#]*' file "$MUSICBOX_TMP_DIR"/song-list > "$MUSICBOX_TMP_DIR/clean-song-list"
 # Susbstitue newlines with spaces
 tr '\n' ' ' < /tmp/musicbox/clean-song-list > song-list
-rm clean-song-list 
+rm clean-song-list
 # Download the songs
 # From Youtube
-yt-dlp -x --audio-format mp3 --audio-quality 0 --sponsorblock-remove all -o "/var/cache/music/%(id).%(ext)s" "$(cat song-list)"
+yt-dlp -x --audio-format mp3 --audio-quality 0 --sponsorblock-remove all -o "$MUSICBOX_CACHE_DIR/music/%(id).%(ext)s" "$(cat song-list)"
 # From the extra songs folder
+downloadfile "$(getfileid "Extra Songs")" "$MUSICBOX_CACHE_DIR/extra-songs"
+count=1
+for i in "$MUSICBOX_CACHE_DIR/extra-songs/"*; do
+mv "$i" "$MUSICBOX_CACHE_DIR/extra-song-$count.mp3"
+count=$((count+1))
+done

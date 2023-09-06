@@ -1,11 +1,13 @@
 #!/bin/bash
 # shellcheck shell=bash
+# Adjust the fade smoothness
 volume='-2%'
 speed="0.1"
+iterations=100
 
 # Gradualy lower volume
 i=0
-while [ $i -lt 100 ]; do
+while [ $i -lt $iterations ]; do
     sleep $speed
     # Get each sink and lower the volume
     for sink in $(pacmd list-sinks | grep 'index:' | cut -b12-)

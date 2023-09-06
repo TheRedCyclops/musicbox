@@ -1,8 +1,8 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
 # Import libraries
-. formatlib
-. configlib
+source "$MUSICBOX_BIN/formatlib"
+source "$MUSICBOX_BIN/configlib"
 # Get when the program should run again
 reloadtime=$(getvalue reload-time)
 # Separate it into Hours and Minutes
@@ -12,11 +12,11 @@ reloadmin=$(echo "$reloadtime" | sed -E 's/\d{1,2}://')
 if [ "$reloadhour" -gt 24 ]; then
     reloadhour=23
     reloadmin=59
-    warn "Hour field on schedule was over 23 setting to 23 and minutes to 59"
+    warn "Hour field on reload time was over 23 setting to 23 and minutes to 59"
 fi
 if [ "$reloadmin" -gt 59 ]; then
     reloadmin=59
-    warn "Minute field on schedule was over 59 setting to 59"
+    warn "Minute field on reload time was over 59 setting to 59"
 fi
 
 # Write start of crontab to a temporary file
@@ -30,73 +30,106 @@ echo "
 
 # Set the schedule file
 schedule="$MUSICBOX_CACHE_DIR/schedule"
+# Check that the schedule file exists
+[ -f "$schedule" ] || critical "Schedule file wasn't downloaded"
 # Create functions to recognise start and end written in file
 getstarttime(){
 # Pass the entire line outputs start time in HH:MM format
-    printf "%s" "$1" | sed  -E -e 's/\s+(short|\*|[0-9]{1,2}:[0-9]{1,2})$//m' 
+    printf "%s" "$1" | sed  -E -e 's/\s+(short|\*|[0-9]{1,2}:[0-9]{1,2})$//m'
 }
 getstoptime(){
 # Pass the entire line outputs stop time in HH:MM format
-    printf "%s" "$1" | sed  -E -e 's/^([0-9]{1,2}:[0-9]{1,2}|\*)\s+//m' 
+    printf "%s" "$1" | sed  -E -e 's/^([0-9]{1,2}:[0-9]{1,2}|\*)\s+//m'
 }
 # Parse schedule
-for i in read -n $schedule; do
+i=1
+for i in $(wc -l "$schedule"); do
     starttime=$(getstarttime "$(sed "${i}q;d" "$schedule")")
     stoptime=$(getstoptime "$(sed "${i}q;d" "$schedule")")
-# if only start time is set start at the start time
-    if [ "$stoptime" = "*" ]; then 
-        start="$(date "+0   %M    %H    *   *   *" "$starttime")"
+# If only start time is set start at the start time
+    if [ "$stoptime" = "*" ]; then
+        start="$(date "+ %M    %H    *   *   *" "$starttime")"
         printf "%s  music-player --onesong | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)\n" "$start" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+        unset start
     fi
-# if the stop time is set to "short" then play the short.mp3 audio
-    if [ "$stoptime" = "*" ]; then 
-        start="$(date "+0   %M    %H    *   *   *" "$starttime")"
+# If the stop time is set to "short" then play the short.mp3 audio
+    if [ "$stoptime" = "*" ]; then
+        start="$(date "+ %M    %H    *   *   *" "$starttime")"
         printf "%s  music-player --short | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)\n" "$start" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+        unset start
     fi
-# if only stop time is set get what the latest unplayed song will be and sustract the length from the time to stop
-    virtualplayedsonglist="$MUSICBOX_CACHE_DIR/virtual-played-song-list"
-    j=0
-        for j in read -n $schedule; do
-         if [ "$j" = "$i" ]; then
-         break;
-         elif echo "$j" | grep -q "\*"; then
-            while [ -z "$selectedsong" ]; do
-                i=1
-                # Loop through the songs until the latest one that hasn't been played is reached
-                # shellcheck disable=2012
-                latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -tw 1 | sed "${i}q;d")
-                if ! grep -q "$latestsong" "$MUSICBOX_CACHE_DIR/played-songs"; then
-                selectedsong=$latestsong
-                else
-                i=$((i+1))
-                fi
-                # Check for the case of no songs
-                if [ "$(ls "$MUSICBOX_CACHE_DIR/music/*")" = '' ]; then
-                error "No songs found when searching for the latest!"
-                break;
-                fi
-            done
-            echo "$latestsong" >> "$virtualplayedsonglist"
-         else
-            # In this case the song is going to be played for a predetermined amount of time
-            #TODO: Actualy count the songs
-            getstarttime "$j"
-            getstoptime "$j"
-            
-         fi
-        if [ -z "$starttime" ]; then
-            error "The start time wasn't recognised for song $i"
-        fi
 
+# If only stop time is set get what the latest unplayed song will be and sustract the length from the time to stop
+    virtualplayedsonglist="$MUSICBOX_CACHE_DIR/virtual-played-song-list"
+    j=1
+    for j in $(wc -l "$schedule"); do
+     # If we reached the line we were originaly proccessing we alredy know what song is going to be played
+     if [ "$j" = "$i" ]; then
+     break;
+     fi
+     # Cases where the line only specifies start or stop time, we just look for the latest unplayed song and add it to the virtual list of played songs
+     if sed "${j}q;d" "$schedule" | grep -q "\*"; then
+        while [ -z "$selectedsong" ]; do
+            k=1
+            # Loop through the songs until the latest one that hasn't been played is reached
+            # shellcheck disable=2012
+            latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -tw 1 | sed "${k}q;d")
+            if ! grep -q "$latestsong" "$virtualplayedsonglist"; then
+            selectedsong=$latestsong
+            fi
+            k=$((k+1))
         done
-    
-    
+        echo "$selectedsong" >> "$virtualplayedsonglist"
+        unset selectedsong
+     elif sed "${j}q;d" "$schedule" | grep -vq "short"; then
+        # In this case the song is going to be played for a predetermined amount of time
+        stoptimeepoch=$(date '+%s' "$(getstoptime "$(sed "${j}q;d" "$schedule")")")
+        starttimeepoch=$(date '+%s' "$(getstarttime "$(sed "${j}q;d" "$schedule")")")
+        totalduration=$starttimeepoch
+        while [ "$totalduration" -lt "$stoptimeepoch" ]; do
+            k=1
+            # Loop through the songs until the latest one that hasn't been played is reached
+            # shellcheck disable=2012
+            latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -tw 1 | sed "${k}q;d")
+            if ! grep -q "$latestsong" "$virtualplayedsonglist"; then
+            selectedsong="$latestsong"
+            fi
+            k=$((k+1))
+            songduration=$(mp3info %S "$selectedsong")
+            totalduration=$((totalduration+songduration))
+            echo "$selectedsong" >> "$virtualplayedsonglist"
+        done
+        unset selectedsong
+        unset stoptimeepoch
+        unset starttimeepoch
+
+     fi
+    done
+    j=1
+    for j in $virtualplayedsonglist
+    do
+            # Loop through the songs until the latest one that hasn't been played is reached, this is the song that will be played
+            # shellcheck disable=2012
+            latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -tw 1 | sed "${k}q;d")
+            if ! grep -q "$latestsong" "$virtualplayedsonglist"; then
+            selectedsong="$latestsong"
+            fi
+            songduration=$(mp3info '%S' "$selectedsong")
+            # Get the stop time in seconds since epoch and subtract song lenght set as start time
+            stoptimeepoch=$(date '%S' "$stoptime")
+            starttimeepoch=$((stoptimeepoch-songduration))
+            start="$(date '+ %M  %H  *   *   *' $starttimeepoch)"
+            printf "%s  music-player --onesong | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)\n" "$start" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+    done
 # If both are set just pass the stop time to the music player and start at starttime
-    if [ "$stoptime" != "*" ] && [ "$starttime" != "*" ]; then 
+    if [ "$stoptime" != "*" ] && [ "$starttime" != "*" ]; then
         start="$(date "+%M    %H" "$starttime")"
         printf "%s\n" "$start"
     fi
 done
 # Schedule Cleanup
 
-date "+%M   %H" "$(getvalue cleanuptime)" 
+date "+%M   %H  *   *   *   $MUSICBOX_BIN/cleanup" "$(getvalue cleanup-time)" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+
+# Set newcrontab.txt to be the crontab
+crontab "$MUSICBOX_CACHE_DIR/newcrontab.txt"
