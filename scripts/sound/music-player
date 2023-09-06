@@ -1,24 +1,38 @@
 #!/bin/bash
 # shellcheck shell=bash disable=2012,1091
-. scripts/libraries/formatlib
-#Check if we only want to play one song
-if [ "$1" = "--onesong" ]; then
- while [ -z "$selectedsong" ]; do
-latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -xt | head -n 1)
-if ! grep -q "$latestsong" "$MUSICBOX_CACHE_DIR/played-songs"; then
-selectedsong=$latestsong
-fi
+# Import libraries
+source "$MUSICBOX_BIN_DIR/formatlib"
+# Add a funcion to get the latest unplayed song
+getlatestunplayed() {
+local counter
+counter=1
+local latestsong
+while [ -z "$selectedsong" ]; do
+    # Loop through the songs until the latest one that hasn't been played is reached
+    # shellcheck disable=2012
+    latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -tw 1 | sed "${counter}q;d")
+    if ! grep -q "$latestsong" "$MUSICBOX_CACHE_DIR/played-songs"; then
+        selectedsong=$latestsong
+    fi
+    counter=$((counter+1))
 done
-#Add it to the played list
-echo "$selectedsong" >> "$MUSICBOX_CACHE_DIR/played-songs"
-# Play the song until the selected time or the next one is needed
-vlc "$MUSICBOX_CACHE_DIR/music/$selectedsong" &
-exit 0
-fi
-# Checki if only short.mp3 is being requested
+}
+# Check if we only want to play one song
+    if [ "$1" = "--onesong" ]; then
+        # Get the latest unplayed song
+        getlatestunplayed
+        # Add it to the played list
+        echo "$selectedsong" >> "$MUSICBOX_CACHE_DIR/played-songs"
+        # Play the song
+        vlc "$MUSICBOX_CACHE_DIR/music/$selectedsong"
+        exit 0
+    fi
+
+# Check if only short.mp3 is being requested
 if [ "$1" = "--short" ]; then
-    vlc "$MUSICBOX_CACHE_DIR/music/short.mp3"
+    vlc "$MUSICBOX_CFG_DIR/music/short.mp3"
 fi
+
 # Check if argument is correctly formated if it's not try to check if provided in antoher format and convert
 date -d "$1" 1> /dev/null|| critical "STOP TIME NOT PROVIDED OR PROVIDED IN AN UNRECOGNIZED FORMAT" && exit 1
 stoptime=$(date -d "$1" +%H%M)

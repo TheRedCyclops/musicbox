@@ -1,21 +1,35 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
-#Import formating
-. scripts/libraries/formatlib
+#Import libraries
+source "$MUSICBOX_BIN_DIR/formatlib"
+source "$MUSICBOX_BIN_DIR/rootpermlib"
+
 info "Attempting to to update"
-[ "$(id -u)" -eq 0 ] || error "Unable to update, not enough permisions!!"
-apk update
-if [ -z "$(apk list -u)" ]; then
+# Check if the program has root access
+if ! rootcheck; then
+ error "Unable to update, not enough permisions!!"
+ exit 1
+fi
+# Update the package database
+apt update
+# Check if there are any packages to be upgraded
+if [ -z "$(apt list --upgradable | sed 's/Listing\.\.\. Done//')" ]; then
     info "No updates available"
     exit 0
 fi
-apk upgrade
-stat=$?
-if [ $stat != 0 ]; then
-    error "Update proccess failed!!"
-fi
-# Check gdrive for updates
-wget https://github.com/glotlabs/gdrive/releases/latest/download/gdrive_linux-x64.tar.gz -O "$MUSICBOX_TMP_DIR"
-tar xzvf "$MUSICBOX_TMP_DIR"/gdrive_linux-x64.tar.gz
-mv gdrive_linux-x64.tar.gz/gdrive /usr/bin/gdrive
-rm -R "$MUSICBOX_TMP_DIR"/gdrive*
+# Upgrade packages
+    apt upgrade
+    # Check if the upgrade succeded
+    stat=$?
+    if [ $stat != 0 ]; then
+        error "Update proccess failed!!"
+    fi
+# Update gdrive3
+    # Download the latest version
+    wget https://github.com/glotlabs/gdrive/releases/latest/download/gdrive_linux-x64.tar.gz -O "$MUSICBOX_TMP_DIR"
+    # Unpack the tarball
+    tar xzvf "$MUSICBOX_TMP_DIR"/gdrive_linux-x64.tar.gz
+    # Update binary
+    mv gdrive_linux-x64.tar.gz/gdrive "$MUSICBOX_BIN_DIR"/gdrive
+    # Remove temporay files
+    rm -R "$MUSICBOX_TMP_DIR"/gdrive*

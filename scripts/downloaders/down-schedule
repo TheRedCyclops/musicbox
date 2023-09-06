@@ -1,8 +1,8 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
 # Import libraries
-. formatlib
-. gdrivelib
+source "$MUSICBOX_BIN_DIR/formatlib"
+source "$MUSICBOX_BIN_DIR/gdrivelib"
 # Download the schedule
 downloadfile "$(getfileid Schedule)" "$MUSICBOX_CACHE_DIR"/schedule
 #Remove comments for check

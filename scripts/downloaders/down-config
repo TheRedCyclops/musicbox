@@ -1,7 +1,8 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
-#Import formating
-. formatlib
+#Import libraries
+source "$MUSICBOX_BIN_DIR/formatlib"
+source "$MUSICBOX_BIN_DIR/gdrivelib"
 #download
-gdrive download "$(get-file-id 'Configuration')"
-grep -v '#.*'
+downloadfile "$(getfileid 'Configuration')" "$MUSICBOX_TMP_DIR/dirty-config"
+grep -v '#.*' "$MUSICBOX_TMP_DIR/dirty-config" > "$MUSICBOX_CONFIG_DIR"/config

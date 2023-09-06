@@ -1,5 +1,5 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
-source "$MUSICBOX_BIN/libraries/formatlib"
+source "$MUSICBOX_BIN_DIR/formatlib"
 # shellcheck disable=2046 # We're passing each song as a diferent argument
 mp3gain -a -k $(ls "$MUSICBOX_CACHE_DIR"/$(date +%Y-%m-)/*)

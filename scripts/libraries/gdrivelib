@@ -1,16 +1,16 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
 #Import libraries
-source "$MUSICBOX_BIN/libraries/formatlib"
+source "$MUSICBOX_BIN_DIR/formatlib"
 
 # Add the functions
 # Gets the File ID from google drive of a file specified with a regex
 getfileid(){
     # Allow for searching inside folders
     if [ "$1" = "--parent" ]; then
-        "$MUSICBOX_BIN/gdrive" files list --parent "$2" | grep -i -E "$3" | sed -E 's/[ ].*//g'
+        "$MUSICBOX_BIN_DIR/gdrive" files list --parent "$2" | grep -i -E "$3" | sed -E 's/[ ].*//g'
     fi
-    "$MUSICBOX_BIN/gdrive" files list | grep -i -E "$1" | sed -E 's/[ ].*//g'
+    "$MUSICBOX_BIN_DIR/gdrive" files list | grep -i -E "$1" | sed -E 's/[ ].*//g'
 }
 # Download a file or folder from google drive given a file id to a given path
 downloadfile(){
@@ -19,13 +19,13 @@ downloadfile(){
     fi
     mkfifo error
     # shellcheck disable=2094
-    "$MUSICBOX_BIN/gdrive" files download "$1" --destination "$2" 2> error
+    "$MUSICBOX_BIN_DIR/gdrive" files download "$1" --destination "$2" 2> error
     if grep -q 'fileNotDownloadable' error; then
-        "$MUSICBOX_BIN/gdrive" files export "$1" "$2.txt"
+        "$MUSICBOX_BIN_DIR/gdrive" files export "$1" "$2.txt"
         mv "$2.txt" "$2"
     fi
     if grep -q 'is a directory' error; then
-        "$MUSICBOX_BIN/gdrive" files download --recursive "$1" --destination "$2"
+        "$MUSICBOX_BIN_DIR/gdrive" files download --recursive "$1" --destination "$2"
     fi
     rm error
 }

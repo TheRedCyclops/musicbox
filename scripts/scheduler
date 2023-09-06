@@ -1,8 +1,8 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
 # Import libraries
-source "$MUSICBOX_BIN/formatlib"
-source "$MUSICBOX_BIN/configlib"
+source "$MUSICBOX_BIN_DIR/formatlib"
+source "$MUSICBOX_BIN_DIR/configlib"
 # Get when the program should run again
 reloadtime=$(getvalue reload-time)
 # Separate it into Hours and Minutes
@@ -69,8 +69,8 @@ for i in $(wc -l "$schedule"); do
      fi
      # Cases where the line only specifies start or stop time, we just look for the latest unplayed song and add it to the virtual list of played songs
      if sed "${j}q;d" "$schedule" | grep -q "\*"; then
+        k=1
         while [ -z "$selectedsong" ]; do
-            k=1
             # Loop through the songs until the latest one that hasn't been played is reached
             # shellcheck disable=2012
             latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -tw 1 | sed "${k}q;d")
@@ -122,14 +122,14 @@ for i in $(wc -l "$schedule"); do
             printf "%s  music-player --onesong | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)\n" "$start" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
     done
 # If both are set just pass the stop time to the music player and start at starttime
-    if [ "$stoptime" != "*" ] && [ "$starttime" != "*" ]; then
-        start="$(date "+%M    %H" "$starttime")"
-        printf "%s\n" "$start"
+    if [[ "$stoptime" != "*" ]] && [[ "$stoptime" != "short" ]] && [[ "$starttime" != "*" ]]; then
+        start="$(date "+%M    %H    *   *   *" "$starttime")"
+        printf "%s  music-player $stoptime \n" "$start"
     fi
 done
-# Schedule Cleanup
 
-date "+%M   %H  *   *   *   $MUSICBOX_BIN/cleanup" "$(getvalue cleanup-time)" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+# Schedule Cleanup
+date "+%M   %H  *   *   *   $MUSICBOX_BIN_DIR/cleanup" "$(getvalue cleanup-time)" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 
 # Set newcrontab.txt to be the crontab
 crontab "$MUSICBOX_CACHE_DIR/newcrontab.txt"

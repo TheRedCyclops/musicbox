@@ -1,8 +1,8 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
 # Import libraries
-source "$MUSICBOX_BIN/formatlib"
-source "$MUSICBOX_BIN/gdrivelib"
+source "$MUSICBOX_BIN_DIR/formatlib"
+source "$MUSICBOX_BIN_DIR/gdrivelib"
 # Get the song list
 downloadfile "$(getfileid "Song List")" "$MUSICBOX_CACHE_DIR"/song-list
 # Check and format the list

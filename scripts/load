@@ -1,22 +1,20 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
-# Create pidfile
-echo $$ > /run/musicbox.pid
 # Import libraries
-source "$MUSICBOX_BIN/libraries/formatlib"
-source "$MUSICBOX_BIN/libraries/configlib"
+source "$MUSICBOX_BIN_DIR/formatlib"
+source "$MUSICBOX_BIN_DIR/configlib"
 # Download the necesary files
-"$MUSICBOX_BIN/downloaders/down-config"   &
-"$MUSICBOX_BIN/downloaders/down-schedule" &
-"$MUSICBOX_BIN/downloaders/down-songs"    &
+"$MUSICBOX_BIN_DIR/down-config"   &
+"$MUSICBOX_BIN_DIR/down-schedule" &
+"$MUSICBOX_BIN_DIR/down-songs"    &
 # Check if post-processing is enabled
 # Wait to finish getting the configuration
-wait "$(pidof get-configuration)"
+wait "$(pidof down-config)"
 if getvalue post-processing; then
     # Wait for the all the songs to be downloaded
-    wait "$(pidof get-songs)"
+    wait "$(pidof down-songs)"
     # Run the post-processor
-    "$MUSICBOX_BIN/sound/post-processor"
+    "$MUSICBOX_BIN_DIR/post-processor"
 fi
 wait
 # Check for the case of no songs
@@ -24,4 +22,3 @@ if [ "$(ls "$MUSICBOX_CACHE_DIR/music/*")" = '' ]; then
 error "No songs found!"
 fi
 scheduler
-rm /run/musicbox.pid

@@ -1,7 +1,7 @@
 #!/bin/bash
 # shellcheck shell=bash disable=1091
 #Import libraries
-source "$MUSICBOX_BIN/libraries/formatlib"
+source "$MUSICBOX_BIN_DIR/formatlib"
 
 logfile(){
     [ -z "$MUSICBOX_LOG_DIR" ] || warn "the logging directory isn't set" && export MUSICBOX_LOG_DIR="/var/log/musicbox"

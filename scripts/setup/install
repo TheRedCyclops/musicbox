@@ -25,6 +25,8 @@
     source "$installpath/scripts/musicbox-env"
     # Add them to the default enviroment
     cp "$installpath/scripts/musicbox-env" /usr/lib/enviroment.d/musicbox.conf
+# Create all directories
+mkdir "$MUSICBOX_BIN_DIR" "$MUSICBOX_LOG_DIR" "$MUSICBOX_TMP_DIR" "$MUSICBOX_CFG_DIR" "$MUSICBOX_CACHE_DIR"
 # Install packages [WORKING]
     apt install ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc yt-dlp mp3info
     # Download and install gdrive
@@ -36,9 +38,9 @@
         ver=3.9.0
         wget "https://github.com/glotlabs/gdrive/releases/download/$ver/gdrive_linux-x64.tar.gz" -O "$tmpdir/gdrive-$ver.tar.gz"
         # Unpack the binary into the binaries directory
-        tar xzf /var/tmp/gdrive-$ver.tar.gz -C "$MUSICBOX_BIN/"
+        tar xzf /var/tmp/gdrive-$ver.tar.gz -C "$MUSICBOX_BIN_DIR/"
         # Make the binary executable
-        chmod +x "$MUSICBOX_BIN"/gdrive
+        chmod +x "$MUSICBOX_BIN_DIR"/gdrive
         # Remove all temporary files
         rm -R "$tmpdir"
 # Unpack the credentials
@@ -63,4 +65,4 @@
     su "$MUSICBOX_USER" -c "crontab \"$installpath/cron/usercron.txt\""
 # Copy scripts to bin
     # Gets all files and sends them as arguments to copy that copies them to the binaries directory
-    find scripts -type f -exec cp {} "$MUSICBOX_BIN" \;
+    find scripts -type f -exec cp {} "$MUSICBOX_BIN_DIR" \;
