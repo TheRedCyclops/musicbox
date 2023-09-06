@@ -26,7 +26,7 @@
     # Add them to the default enviroment
     cp "$installpath/scripts/musicbox-env" /usr/lib/enviroment.d/musicbox.conf
 # Create all directories
-mkdir "$MUSICBOX_BIN_DIR" "$MUSICBOX_LOG_DIR" "$MUSICBOX_TMP_DIR" "$MUSICBOX_CFG_DIR" "$MUSICBOX_CACHE_DIR"
+mkdir -p "$MUSICBOX_BIN_DIR" "$MUSICBOX_LOG_DIR" "$MUSICBOX_TMP_DIR" "$MUSICBOX_CFG_DIR" "$MUSICBOX_CACHE_DIR"
 # Install packages [WORKING]
     apt install ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc yt-dlp mp3info
     # Download and install gdrive

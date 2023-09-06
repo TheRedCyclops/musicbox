@@ -1,6 +1,6 @@
 export MUSICBOX_BIN_DIR="/usr/lib/musicbox"
 export MUSICBOX_TMP_DIR="/var/tmp/musicbox"
 export MUSICBOX_LOG_DIR="/var/log/musicbox"
-export MUSICBOX_CFG_DIR="/etc/musicbox"
+export MUSICBOX_CFG_DIR="/var/etc/musicbox"
 export MUSICBOX_CACHE_DIR="/var/cache/musicbox"
 export MUSICBOX_USER="music"
