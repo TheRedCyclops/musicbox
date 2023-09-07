@@ -36,7 +36,7 @@ echo "
 #User Cron tab
 # min    hour    day    month    weekday    command
   @reboot   load | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d).log
-  $reloadmin      $reloadhour       *      *        1-5        load | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)/.log
+  $reloadmin      $reloadhour       *      *        1-5        $MUSICBOX_BIN_DIR/load | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)/.log
 " > "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 
 # Set the schedule file
@@ -142,5 +142,12 @@ done
 # Schedule Cleanup
 date "+%M   %H  *   *   *   $MUSICBOX_BIN_DIR/cleanup" "$(getvalue cleanup-time)" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 
+# Add newline at the end of crontab
+printf '\n' >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+
 # Set newcrontab.txt to be the crontab
 crontab "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+
+# Remove the temporary cron file
+
+rm "$MUSICBOX_CACHE_DIR/newcrontab.txt"

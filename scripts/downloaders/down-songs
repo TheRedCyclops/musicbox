@@ -26,11 +26,11 @@ tr '\n' ' ' < /tmp/musicbox/clean-song-list > song-list
 rm clean-song-list
 # Download the songs
 # From Youtube
-yt-dlp -x --audio-format mp3 --audio-quality 0 --sponsorblock-remove all -o "$MUSICBOX_CACHE_DIR/music/%(id).%(ext)s" "$(cat song-list)"
+yt-dlp -x --audio-format mp3 --audio-quality 0 --sponsorblock-remove all -o "$MUSICBOX_CACHE_DIR/music/yt.%(id).%(ext)s" "$(cat "$MUSICBOX_TMP_DIR/song-list")"
 # From the extra songs folder
 downloadfile "$(getfileid "Extra Songs")" "$MUSICBOX_CACHE_DIR/extra-songs"
 count=1
 for i in "$MUSICBOX_CACHE_DIR/extra-songs/"*; do
-mv "$i" "$MUSICBOX_CACHE_DIR/extra-song-$count.mp3"
+mv "$i" "$MUSICBOX_CACHE_DIR/songs/extra-song-$count.mp3"
 count=$((count+1))
 done
