@@ -16,7 +16,7 @@ source "$MUSICBOX_BIN_DIR/formatlib"
 source "$MUSICBOX_BIN_DIR/gdrivelib"
 # Download
 if downloadfile "$(getfileid 'Configuration')" "$MUSICBOX_TMP_DIR/dirty-config"; then
-grep -v '#.*' "$MUSICBOX_TMP_DIR/dirty-config" > "$MUSICBOX_CONFIG_DIR"/config
+grep -v '#.*' "$MUSICBOX_TMP_DIR/dirty-config" > "$MUSICBOX_CFG_DIR"/config
 else
 error "Configuration file not found!"
 exit 1
