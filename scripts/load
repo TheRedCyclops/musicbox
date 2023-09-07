@@ -20,16 +20,13 @@ source "$MUSICBOX_BIN_DIR/configlib"
 "$MUSICBOX_BIN_DIR/down-songs"    &
 # Check if post-processing is enabled
 # Wait to finish getting the configuration
-wait "$(pidof down-config)"
+wait
 if getvalue post-processing; then
-    # Wait for the all the songs to be downloaded
-    wait "$(pidof down-songs)"
     # Run the post-processor
     "$MUSICBOX_BIN_DIR/post-processor"
 fi
-wait
 # Check for the case of no songs
 if [ "$(ls "$MUSICBOX_CACHE_DIR/music/*")" = '' ]; then
 error "No songs found!"
 fi
-scheduler
+"$MUSICBOX_BIN_DIR/scheduler"

@@ -34,7 +34,8 @@ mkdir -p "$MUSICBOX_TMP_DIR" && info "Created $MUSICBOX_TMP_DIR Successfully"
 mkdir -p "$MUSICBOX_CFG_DIR" && info "Created $MUSICBOX_CFG_DIR Successfully"
 mkdir -p "$MUSICBOX_CACHE_DIR" && info "Created $MUSICBOX_CACHE_DIR Successfully"
 # Install packages [WORKING]
-    apt -y install ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc yt-dlp mp3info unzip    # Download and install gdrive
+    apt -y install ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc  mp3info unzip
+        # Download and install gdrive
         # Create a temporary directory to store the download
         tmpdir=$(mktemp -d)
         # Set it so only this user can write to it
@@ -48,6 +49,9 @@ mkdir -p "$MUSICBOX_CACHE_DIR" && info "Created $MUSICBOX_CACHE_DIR Successfully
         chmod +x "$MUSICBOX_BIN_DIR"/gdrive
         # Remove all temporary files
         rm -R "$tmpdir"
+        # Download and install yt-dlp (latest)
+        wget "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp" -O /usr/local/bin/yt-dlp
+        chmod +x /usr/local/bin/yt-dlp
 # Unpack the credentials
     echo "Getting Credentials"
     unzip "$installpath/creds.zip" -d "$installpath/creds"
@@ -61,6 +65,7 @@ mkdir -p "$MUSICBOX_CACHE_DIR" && info "Created $MUSICBOX_CACHE_DIR Successfully
     chown "$MUSICBOX_USER" "$MUSICBOX_CFG_DIR"
     chown "$MUSICBOX_USER" "$MUSICBOX_LOG_DIR"
     chown "$MUSICBOX_USER" "$MUSICBOX_CACHE_DIR"
+    chown "$MUSICBOX_USER" "$MUSICBOX_USER_DIR"
 
     # Copy drive credentials to home
     cp "$installpath/creds/gdrive_export-***REMOVED***.tar" "$MUSICBOX_USER_DIR"

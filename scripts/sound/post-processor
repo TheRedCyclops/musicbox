@@ -14,4 +14,4 @@
 # Import libraries
 source "$MUSICBOX_BIN_DIR/formatlib"
 # shellcheck disable=2046 # We're passing each song as a diferent argument
-mp3gain -a -k $(ls "$MUSICBOX_CACHE_DIR"/$(date +%Y-%m-)/*)
+mp3gain -a -k $(ls "$MUSICBOX_CACHE_DIR"/songs/*)

@@ -15,22 +15,22 @@
 source "$MUSICBOX_BIN_DIR/formatlib"
 source "$MUSICBOX_BIN_DIR/gdrivelib"
 # Get the song list
-downloadfile "$(getfileid "Song List")" "$MUSICBOX_CACHE_DIR"/song-list
-# Check and format the list
-# Get if any links are in the file if not warn that only using the extra songs
-grep -Eq -- '^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$' "$MUSICBOX_TMP_DIR/song-list"|| warn "No links were found!, only using songs from extra-songs folder!"
+downloadfile "$(getfileid "Song List")" "$MUSICBOX_TMP_DIR"/song-list
 # Remove comments
 grep -o '^[^#]*' file "$MUSICBOX_TMP_DIR"/song-list > "$MUSICBOX_TMP_DIR/clean-song-list"
-# Susbstitue newlines with spaces
-tr '\n' ' ' < /tmp/musicbox/clean-song-list > song-list
-rm clean-song-list
+mv "$MUSICBOX_TMP_DIR/clean-song-list" "$MUSICBOX_CACHE_DIR/song-list"
 # Download the songs
+mkdir "$MUSICBOX_CACHE_DIR/music"
 # From Youtube
-yt-dlp -x --audio-format mp3 --audio-quality 0 --sponsorblock-remove all -o "$MUSICBOX_CACHE_DIR/music/yt.%(id).%(ext)s" "$(cat "$MUSICBOX_TMP_DIR/song-list")"
+while read -r url; do
+yt-dlp -x --audio-format mp3 --audio-quality 0 --sponsorblock-remove all -o "$MUSICBOX_CACHE_DIR/music/yt.%(id)s.%(ext)s" "$url"
+done <"$MUSICBOX_TMP_DIR/song-list"
 # From the extra songs folder
-downloadfile "$(getfileid "Extra Songs")" "$MUSICBOX_CACHE_DIR/extra-songs"
+mkdir "$MUSICBOX_TMP_DIR/extra-songs"
+downloadfile "$(getfileid "Extra Songs")" "$MUSICBOX_TMP_DIR/extra-songs"
 count=1
 for i in "$MUSICBOX_CACHE_DIR/extra-songs/"*; do
 mv "$i" "$MUSICBOX_CACHE_DIR/songs/extra-song-$count.mp3"
 count=$((count+1))
 done
+rm -R "$MUSICBOX_TMP_DIR/extra-songs"

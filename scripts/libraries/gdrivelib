@@ -16,8 +16,10 @@ source "$MUSICBOX_BIN_DIR/formatlib"
 
 # Add the functions
 # Gets the File ID from google drive of a file specified with a regex
+gdriveinit() {
+    gdrive account switch ***REMOVED***
+}
 getfileid(){
-    "$MUSICBOX_BIN_DIR/gdrive" account switch ***REMOVED***
     # Allow for searching inside folders
     if [ "$1" = "--parent" ]; then
         "$MUSICBOX_BIN_DIR/gdrive" files list --parent "$2" | grep -i -E "$3" | sed -E 's/[ ].*//g'
@@ -26,7 +28,6 @@ getfileid(){
 }
 # Download a file or folder from google drive given a file id to a given path
 downloadfile(){
-    "$MUSICBOX_BIN_DIR/gdrive" account switch ***REMOVED***
     if [ -z "$2" ]; then
     error "Output file wasn't especifed"
     fi
