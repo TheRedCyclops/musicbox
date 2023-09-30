@@ -26,7 +26,7 @@ if getvalue post-processing; then
     "$MUSICBOX_BIN_DIR/post-processor"
 fi
 # Check for the case of no songs
-if [ "$(ls "$MUSICBOX_CACHE_DIR/music/*")" = '' ]; then
+if [ "$(ls "$MUSICBOX_CACHE_DIR/music")" = '' ]; then
 error "No songs found!"
 fi
 "$MUSICBOX_BIN_DIR/scheduler"

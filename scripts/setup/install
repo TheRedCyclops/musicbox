@@ -57,6 +57,8 @@ mkdir -p "$MUSICBOX_CACHE_DIR" && info "Created $MUSICBOX_CACHE_DIR Successfully
     unzip "$installpath/creds.zip" -d "$installpath/creds"
 # Enable cron
     systemctl enable --now cron
+# Enable pulseaudio
+    systemctl enable --now pulseaudio.socket
 # Add unprivileged user
     adduser --home "$MUSICBOX_USER_DIR" --system --shell /bin/bash "$MUSICBOX_USER"
     # Give it access to all the needed directories

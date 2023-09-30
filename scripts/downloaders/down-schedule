@@ -14,6 +14,9 @@
 # Import libraries
 source "$MUSICBOX_BIN_DIR/formatlib"
 source "$MUSICBOX_BIN_DIR/gdrivelib"
+
+info "Attempting to download schedule"
+
 # Download the schedule
 downloadfile "$(getfileid Schedule)" "$MUSICBOX_CACHE_DIR"/schedule
 #Remove comments for check

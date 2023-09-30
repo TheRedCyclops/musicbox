@@ -14,6 +14,9 @@
 # Import libraries
 source "$MUSICBOX_BIN_DIR/formatlib"
 source "$MUSICBOX_BIN_DIR/configlib"
+
+info "Attempting to load schedule"
+
 # Get when the program should run again
 reloadtime=$(getvalue reload-time)
 # Separate it into Hours and Minutes
@@ -83,7 +86,7 @@ for i in $(wc -l "$schedule"); do
         while [ -z "$selectedsong" ]; do
             # Loop through the songs until the latest one that hasn't been played is reached
             # shellcheck disable=2012
-            latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -tw 1 | sed "${k}q;d")
+            latestsong=$(ls "$MUSICBOX_CACHE_DIR/music" -tw 1 | sed "${k}q;d")
             if ! grep -q "$latestsong" "$virtualplayedsonglist"; then
             selectedsong=$latestsong
             fi
@@ -100,12 +103,12 @@ for i in $(wc -l "$schedule"); do
             k=1
             # Loop through the songs until the latest one that hasn't been played is reached
             # shellcheck disable=2012
-            latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -tw 1 | sed "${k}q;d")
+            latestsong=$(ls "$MUSICBOX_CACHE_DIR/music" -tw 1 | sed "${k}q;d")
             if ! grep -q "$latestsong" "$virtualplayedsonglist"; then
             selectedsong="$latestsong"
             fi
             k=$((k+1))
-            songduration=$(mp3info %S "$selectedsong")
+            songduration=$(mp3info -p "%S" "$selectedsong")
             totalduration=$((totalduration+songduration))
             echo "$selectedsong" >> "$virtualplayedsonglist"
         done
@@ -120,13 +123,13 @@ for i in $(wc -l "$schedule"); do
     do
             # Loop through the songs until the latest one that hasn't been played is reached, this is the song that will be played
             # shellcheck disable=2012
-            latestsong=$(ls "$MUSICBOX_CACHE_DIR/music/" -tw 1 | sed "${k}q;d")
+            latestsong=$(ls "$MUSICBOX_CACHE_DIR/music" -tw 1 | sed "${k}q;d")
             if ! grep -q "$latestsong" "$virtualplayedsonglist"; then
             selectedsong="$latestsong"
             fi
-            songduration=$(mp3info '%S' "$selectedsong")
+            songduration=$(mp3info -p '%S' "$selectedsong")
             # Get the stop time in seconds since epoch and subtract song lenght set as start time
-            stoptimeepoch=$(date '%S' --date="$stoptime")
+            stoptimeepoch=$(date '+%s' --date="$stoptime")
             starttimeepoch=$((stoptimeepoch-songduration))
             start="$(date '+ %M  %H  *   *   *' --date="$starttimeepoch")"
             printf "%s  music-player --onesong | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)\n" "$start" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
