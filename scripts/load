@@ -14,10 +14,14 @@
 while IFS= read -r line; do
     export "${line?}"
 done < musicbox-env
-
 # Import libraries
 source "$MUSICBOX_BIN_DIR/formatlib"
 source "$MUSICBOX_BIN_DIR/configlib"
+#Check internet connection
+if ! ping youtube.com; then
+    critical "Failed to Connect to the internet!"
+    exit 1
+fi
 # Download the necesary files
 "$MUSICBOX_BIN_DIR/down-config"   &
 "$MUSICBOX_BIN_DIR/down-schedule" &
