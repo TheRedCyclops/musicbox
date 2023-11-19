@@ -1,1 +1,2 @@
 #TODO
+#sha256sum $MUSICBOX_BIN_DIR and check with checksum file generated on install
