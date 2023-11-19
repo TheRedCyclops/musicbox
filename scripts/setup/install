@@ -90,22 +90,5 @@ mkdir -p "$MUSICBOX_CACHE_DIR" && info "Created $MUSICBOX_CACHE_DIR Successfully
     # Gets all files and sends them as arguments to copy that copies them to the binaries directory
     find "$installpath/scripts" -type f -exec cp {} "$MUSICBOX_BIN_DIR/" \; && info "Copied scripts to $MUSICBOX_BIN_DIR"
 
-# TEMPORARY FIX
-# Replace all enviroment variables with hardcodes
-for file in "$MUSICBOX_BIN_DIR"/*; do
-# shellcheck disable=2016
-sed -i -e 's/$MUSICBOX_BIN_DIR/\/usr\/lib\/musicbox/gm' "$file"
-# shellcheck disable=2016
-sed -i -e 's/$MUSICBOX_TMP_DIR/\/var\/tmp\/musicbox/gm' "$file"
-# shellcheck disable=2016
-sed -i -e 's/$MUSICBOX_LOG_DIR/\/var\/log\/musicbox/gm' "$file"
-# shellcheck disable=2016
-sed -i -e 's/$MUSICBOX_CFG_DIR/\/var\/etc\/musicbox/gm' "$file"
-# shellcheck disable=2016
-sed -i -e 's/$MUSICBOX_CACHE_DIR/\/var\/cache\/musicbox/gm' "$file"
-# shellcheck disable=2016
-sed -i -e 's/$MUSICBOX_USER_DIR/\/var\/local\/musicbox/gm' "$file"
-# shellcheck disable=2016
-sed -i -e 's/$MUSICBOX_USER/music/gm' "$file"
-done
+
 info "Instalation Finished"
