@@ -75,7 +75,7 @@ while [[ $line -le $(wc -l "$schedule") ]]; do
         etime="$(date '+%s' --date="$(gettime $line)")"
         songduration="$(mp3info -p "%S" "$(getsong $line)")"
         fetime=$((etime-songduration))
-        date "+%M   %H  *   *   *   cvlc --no-video $(getsong $line)" --date="$fetime" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+        date "+%M   %H  *   *   *   cvlc --no-video $(getsong $line)" --date="@$fetime" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
     fi
 done
 
