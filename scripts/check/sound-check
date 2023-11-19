@@ -12,7 +12,10 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 for song in "$@"; do
- file "$song" | grep "Audio File" || warn "one of the files in extra songs wasn't a song or wasn't correctly downloaded!" && continue
- mp3val -f "$song"
- info "$(mp3info -p "%b corrupted audio frames") $song"
+    if ! file "$song" | grep "Audio File"; then
+        warn "one of the files in extra songs wasn't a song or wasn't correctly downloaded!"
+        continue
+    fi
+    mp3val -f "$song"
+    info "$(mp3info -p "%b corrupted audio frames") $song"
 done
