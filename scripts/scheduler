@@ -57,13 +57,13 @@ getsong(){
     song=$(cut -d'/' -f3 "$schedule" | "sed ${1}q:d")
     if [[ "$song" == "random" ]]; then
         for song in "$MUSICBOX_CACHE_DIR"/songs/*; do
-            if ! grep -q "$song" playedsongs; then
+            if ! grep -q "$song" "$MUSICBOX_CACHE_DIR"/playedsongs; then
                 break
             fi
         done
-        echo "$song"
+        echo "$song" | tee "$MUSICBOX_CACHE_DIR"/playedsongs
     else
-    echo "$song"
+    echo "$song" | tee "$MUSICBOX_CACHE_DIR"/playedsongs
     fi
 }
 # Parse schedule

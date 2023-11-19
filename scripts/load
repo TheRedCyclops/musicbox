@@ -18,7 +18,7 @@ done < musicbox-env
 source "$MUSICBOX_BIN_DIR/formatlib"
 source "$MUSICBOX_BIN_DIR/configlib"
 #Check internet connection
-if ! ping youtube.com; then
+if ! ping -c 1 youtube.com; then
     critical "Failed to Connect to the internet!"
     exit 1
 fi
