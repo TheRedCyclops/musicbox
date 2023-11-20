@@ -63,7 +63,7 @@ getsong(){
         done
         echo "$song" | tee "$MUSICBOX_CACHE_DIR"/playedsongs
     else
-    echo "$song" | tee "$MUSICBOX_CACHE_DIR"/playedsongs
+    echo "$MUSICBOX_CACHE_DIR/extra-songs/$song"
     fi
 }
 # Parse schedule
@@ -89,5 +89,8 @@ printf '\n' >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 crontab "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 
 # Remove the temporary cron file
-
-rm "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+if [[ $(sha256sum /var/spool/crontabs | cut -d' ' -f2) -eq $(sha256sum "$MUSICBOX_CACHE_DIR/newcrontab.txt" | cut -d ' ' -f2) ]]; then
+	rm "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+else
+	critical "Failed to set crontab"
+fi
