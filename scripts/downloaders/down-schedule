@@ -23,6 +23,6 @@ downloadfile "$(getfileid Schedule)" "$MUSICBOX_CACHE_DIR"/schedule
 grep -v -E '^[ ]*#.*' "$MUSICBOX_CACHE_DIR"/schedule > "$MUSICBOX_CACHE_DIR"/schedule-clean
 mv "$MUSICBOX_CACHE_DIR"/schedule-clean "$MUSICBOX_CACHE_DIR"/schedule
 # Verify the syntax
-if grep -v -E -q '(\*||[0-9]{2}:[0-9]{2})[\r\t\f\v ]+(\*||[0-9]{2}:[0-9]{2})[\r\t\f\v ]*' "$MUSICBOX_CACHE_DIR"/schedule; then
+if grep -v -E -q '(start|stop)/[0-9]{1-2}:[0-9]{1-2}/.+' "$MUSICBOX_CACHE_DIR"/schedule; then
     error "Schedule is misformated!"
 fi
