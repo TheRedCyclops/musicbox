@@ -24,15 +24,13 @@ fi
 # Update the package database
 apt update
 # Check if there are any packages to be upgraded
-if [ -z "$(apt list --upgradable | sed 's/Listing\.\.\. Done//')" ]; then
+if [ -z "$(apt-get list --upgradable | sed 's/Listing\.\.\. Done//')" ]; then
     info "No updates available"
     exit 0
 fi
 # Upgrade packages
-    apt upgrade
-    # Check if the upgrade succeded
-    stat=$?
-    if [ $stat != 0 ]; then
+
+    if apt-get upgrade; then
         error "Update proccess failed!!"
     fi
 # Update gdrive3
@@ -44,3 +42,6 @@ fi
     mv gdrive_linux-x64.tar.gz/gdrive "$MUSICBOX_BIN_DIR"/gdrive
     # Remove temporay files
     rm -R "$MUSICBOX_TMP_DIR"/gdrive*
+# Update yt-dlp
+    wget "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp" -O /usr/local/bin/yt-dlp
+    chmod +x /usr/local/bin/yt-dlp
