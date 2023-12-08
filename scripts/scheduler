@@ -63,7 +63,7 @@ getsong(){
         done
         echo "$song" | tee "$MUSICBOX_CACHE_DIR"/scheduledsongs
     else
-    echo "$MUSICBOX_CACHE_DIR/extra-songs/$song"
+    echo "$MUSICBOX_CACHE_DIR/extra-songs/${song:?}" || error "Specified song not found or not parsed properly!"
     fi
 }
 # Parse schedule
