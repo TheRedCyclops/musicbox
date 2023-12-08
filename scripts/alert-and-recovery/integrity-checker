@@ -1,2 +1,7 @@
-#TODO
-#sha256sum $MUSICBOX_BIN_DIR and check with checksum file generated on install
+#!/bin/bash
+# shellcheck shell=bash disable=1091
+
+# Import libraries
+source "$MUSICBOX_BIN_DIR"/formatlib
+# Compare the current checksum with the one generated at install
+sha1sum "$MUSICBOX_BIN_DIR"/* -c "$MUSICBOX_CFG_DIR"/sha1sums || warn "Integrity check failed"

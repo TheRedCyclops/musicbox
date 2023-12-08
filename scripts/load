@@ -10,7 +10,7 @@
 # See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program.
 # If not, see <https://www.gnu.org/licenses/>.
-# Import Enviorment variables
+# Import Enviroment variables
 while IFS= read -r line; do
     export "${line?}"
 done < musicbox-env
@@ -29,6 +29,8 @@ fi
 # Check if post-processing is enabled
 # Wait to finish getting the configuration
 wait
+#Check for cprrupted files
+"$MUSICBOX_BIN_DIR/sound-check"
 if getvalue post-processing; then
     # Run the post-processor
     "$MUSICBOX_BIN_DIR/post-processor"

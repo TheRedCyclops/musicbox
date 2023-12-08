@@ -57,11 +57,11 @@ getsong(){
     song=$(cut -d'/' -f3 "$schedule" | "sed ${1}q:d")
     if [[ "$song" == "random" ]]; then
         for song in "$MUSICBOX_CACHE_DIR"/songs/*; do
-            if ! grep -q "$song" "$MUSICBOX_CACHE_DIR"/playedsongs; then
+            if ! grep -Fxq "$song" "$MUSICBOX_CACHE_DIR"/scheduledsongs; then
                 break
             fi
         done
-        echo "$song" | tee "$MUSICBOX_CACHE_DIR"/playedsongs
+        echo "$song" | tee "$MUSICBOX_CACHE_DIR"/scheduledsongs
     else
     echo "$MUSICBOX_CACHE_DIR/extra-songs/$song"
     fi
@@ -73,9 +73,12 @@ while [[ $line -le $(wc -l "$schedule") ]]; do
         date "+%M   %H  *   *   *   cvlc --no-video $(getsong $line)" --date="$(gettime $line)" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
     elif [[ $(getmode $line) == "stop" ]]; then
         etime="$(date '+%s' --date="$(gettime $line)")"
-        songduration="$(mp3info -p "%S" "$(getsong $line)")"
+        song=$(getsong $line)
+        songduration="$(mp3info -p "%S" "$song")"
         fetime=$((etime-songduration))
-        date "+%M   %H  *   *   *   cvlc --no-video $(getsong $line)" --date="@$fetime" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+        date "+%M   %H  *   *   *   cvlc --no-video $song" --date="@$fetime" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+    else
+    warn "Misformated line found in schedule, proceeding..."
     fi
 done
 
@@ -89,7 +92,7 @@ printf '\n' >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 crontab "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 
 # Remove the temporary cron file
-if [[ $(sha256sum /var/spool/crontabs | cut -d' ' -f2) -eq $(sha256sum "$MUSICBOX_CACHE_DIR/newcrontab.txt" | cut -d ' ' -f2) ]]; then
+if [[ $(sha1sum /var/spool/crontabs | cut -d' ' -f2) -eq $(sha1sum "$MUSICBOX_CACHE_DIR/newcrontab.txt" | cut -d ' ' -f2) ]]; then
 	rm "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 else
 	critical "Failed to set crontab"
