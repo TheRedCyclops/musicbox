@@ -70,7 +70,6 @@ fi
 # Add unprivileged user
     adduser --home "$MUSICBOX_USER_DIR" --system --shell /bin/bash "$MUSICBOX_USER"
     # Give it access to all the needed directories
-    chown "$MUSICBOX_USER" "$MUSICBOX_BIN_DIR"
     chown "$MUSICBOX_USER" "$MUSICBOX_TMP_DIR"
     chown "$MUSICBOX_USER" "$MUSICBOX_CFG_DIR"
     chown "$MUSICBOX_USER" "$MUSICBOX_LOG_DIR"
