@@ -13,15 +13,15 @@
 # Import Enviroment variables
 while IFS= read -r line; do
     export "${line?}"
-done < musicbox-env
+done < /etc/musicbox/musicbox-env # Had to hardcode this path
 # Add program libraries and scripts to path
-PATH=$MUSICBOX_BIN_DIR:$PATH
+export PATH="$MUSICBOX_BIN_DIR:$PATH"
 # Import libraries
 source formatlib
 source configlib
 #Check internet connection
-if ! ping -c 1 youtube.com; then
-    critical "Failed to Connect to the internet!"
+if ! ping -c 1 youtube.com > /dev/null; then
+    critical "Failed to connect to the internet!"
     exit 1
 fi
 # Download the necesary files

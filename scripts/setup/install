@@ -96,7 +96,9 @@ fi
     find "$installpath/scripts" -type f -exec cp {} "$MUSICBOX_BIN_DIR/" \; && info "Copied scripts to $MUSICBOX_BIN_DIR"
     # Make all scripts executable
     chmod -R +x "$MUSICBOX_BIN_DIR"
+    # Move enviroment variable file to config dir
+    mv "$MUSICBOX_BIN_DIR"/musicbox-env "$MUSICBOX_CFG_DIR"
 #Create checksums for integrity testing
-sha1sum "$MUSICBOX_BIN_DIR"/* > $MUSICBOX_CFG_DIR/sha1sums
+sha1sum "$MUSICBOX_BIN_DIR"/* > "$MUSICBOX_CFG_DIR"/sha1sums
 
 info "Instalation Finished"

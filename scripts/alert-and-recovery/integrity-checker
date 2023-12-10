@@ -2,6 +2,6 @@
 # shellcheck shell=bash disable=1091
 
 # Import libraries
-source "$MUSICBOX_BIN_DIR"/formatlib
+source formatlib
 # Compare the current checksum with the one generated at install
 sha1sum "$MUSICBOX_BIN_DIR"/* -c "$MUSICBOX_CFG_DIR"/sha1sums || warn "Integrity check failed"
