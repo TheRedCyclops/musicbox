@@ -22,9 +22,9 @@ gdriveinit() {
 getfileid(){
     # Allow for searching inside folders
     if [ "$1" = "--parent" ]; then
-        "$MUSICBOX_BIN_DIR/gdrive" files list --parent "$2" | grep -i -E "$3" | sed -E 's/[ ].*//g'
+        gdrive files list --parent "$2" | grep -i -E "$3" | sed -E 's/[ ].*//g'
     fi
-    "$MUSICBOX_BIN_DIR/gdrive" files list | grep -i -E "$1" | sed -E 's/[ ].*//g'
+    gdrive files list | grep -i -E "$1" | sed -E 's/[ ].*//g'
 }
 # Download a file or folder from google drive given a file id to a given path
 downloadfile(){
@@ -32,13 +32,13 @@ downloadfile(){
     error "Output file wasn't especifed"
     fi
     tmpdir=$(mktemp -d)
-    "$MUSICBOX_BIN_DIR/gdrive" files download "$1" --destination "$2" 2> "$tmpdir/gdrive-error"
+    gdrive files download "$1" --destination "$2" 2> "$tmpdir/gdrive-error"
     if grep -q 'fileNotDownloadable' "$tmpdir/gdrive-error"; then
-        "$MUSICBOX_BIN_DIR/gdrive" files export "$1" "$2.txt"
+        gdrive files export "$1" "$2.txt"
         mv "$2.txt" "$2"
     fi
     if grep -q 'is a directory' "$tmpdir/gdrive-error"; then
-        "$MUSICBOX_BIN_DIR/gdrive" files download --recursive "$1" --destination "$2"
+        gdrive files download --recursive "$1" --destination "$2"
     fi
     rm "$tmpdir/gdrive-error"
 }
