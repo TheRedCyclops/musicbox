@@ -12,17 +12,16 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 # Import libraries
-source "$MUSICBOX_BIN_DIR/formatlib"
-source "$MUSICBOX_BIN_DIR/gdrivelib"
+source formatlib
+source gdrivelib
 
 info "Attempting to download schedule"
 
 # Download the schedule
 downloadfile "$(getfileid Schedule)" "$MUSICBOX_CACHE_DIR"/schedule
-#Remove comments for check
-grep -v -E '^[ ]*#.*' "$MUSICBOX_CACHE_DIR"/schedule > "$MUSICBOX_CACHE_DIR"/schedule-clean
-mv "$MUSICBOX_CACHE_DIR"/schedule-clean "$MUSICBOX_CACHE_DIR"/schedule
+#Remove comments
+sed -i '/^[ ]*#.*/d' "$MUSICBOX_CACHE_DIR/schedule"
 # Verify the syntax
-if grep -v -E -q '(start|stop)/[0-9]{1-2}:[0-9]{1-2}/.+' "$MUSICBOX_CACHE_DIR"/schedule; then
+if grep -v -E -q '^(start|stop)/[0-9]{1,2}:[0-9]{1,2}/.+$' "$MUSICBOX_CACHE_DIR"/schedule; then
     error "Schedule is misformated!"
 fi

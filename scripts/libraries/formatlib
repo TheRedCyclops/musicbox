@@ -13,38 +13,14 @@
 
 # Add the formating functions
 info(){
-    if [ "$1" = - ]; then
-        read -r output
-    else
-        output="$1"
-    fi
-    printf %b"[ $(date +%T) | $(basename "$0") ] "info: '\x1b[38;5;246m'"$output"'\e[0;0m\n'
-    unset output
+    printf %b"[ $(date +%T) | $(basename "$0") ] "info: '\x1b[38;5;246m'"$1"'\e[0;0m\n'
 }
 warn(){
-    if [ "$1" = - ]; then
-        read -r output
-    else
-        output="$1"
-    fi
-    printf %b"[ $(date +%T) | $(basename "$0") ] "warning: '\x1b[38;5;222m'"$output"'\e[0;0m\n'
-    unset output
+    printf %b"[ $(date +%T) | $(basename "$0") ] "warning: '\x1b[38;5;222m'"$1"'\e[0;0m\n'
 }
 error(){
-    if [ "$1" = - ]; then
-        read -r output
-    else
-        output="$1"
-    fi
-    printf %b"[ $(date +%T) | $(basename "$0") ] "error: '\x1b[38;5;1m'"$output"'\e[0;0m\n'
-    unset output
+    printf %b"[ $(date +%T) | $(basename "$0") ] "error: '\x1b[38;5;1m'"$1"'\e[0;0m\n'
 }
 critical(){
-    if [ "$1" = - ]; then
-        read -r output
-    else
-        output="$1"
-    fi
-    printf %b"[ $(date +%T) | $(basename "$0") ] "CRITICAL_ERROR: '\x1b[48;5;9m\x1b[38;5;255m'"$output"'\e[0;0m\n'
-    unset output
+    printf %b"[ $(date +%T) | $(basename "$0") ] "CRITICAL_ERROR: '\x1b[48;5;9m\x1b[38;5;255m'"$1"'\e[0;0m\n'
 }

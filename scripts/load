@@ -14,29 +14,31 @@
 while IFS= read -r line; do
     export "${line?}"
 done < musicbox-env
+# Add program libraries and scripts to path
+PATH=$MUSICBOX_BIN_DIR:$PATH
 # Import libraries
-source "$MUSICBOX_BIN_DIR/formatlib"
-source "$MUSICBOX_BIN_DIR/configlib"
+source formatlib
+source configlib
 #Check internet connection
 if ! ping -c 1 youtube.com; then
     critical "Failed to Connect to the internet!"
     exit 1
 fi
 # Download the necesary files
-"$MUSICBOX_BIN_DIR/down-config"   &
-"$MUSICBOX_BIN_DIR/down-schedule" &
-"$MUSICBOX_BIN_DIR/down-songs"    &
+down-config   &
+down-schedule &
+down-songs    &
 # Check if post-processing is enabled
 # Wait to finish getting the configuration
 wait
-#Check for cprrupted files
-"$MUSICBOX_BIN_DIR/sound-check"
+#Check for corrupted files
+sound-check
 if getvalue post-processing; then
     # Run the post-processor
-    "$MUSICBOX_BIN_DIR/post-processor"
+    post-processor
 fi
 # Check for the case of no songs
 if [ "$(ls "$MUSICBOX_CACHE_DIR/music")" = '' ]; then
 error "No songs found!"
 fi
-"$MUSICBOX_BIN_DIR/scheduler"
+scheduler

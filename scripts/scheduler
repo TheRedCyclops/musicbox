@@ -12,8 +12,8 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 # Import libraries
-source "$MUSICBOX_BIN_DIR/formatlib"
-source "$MUSICBOX_BIN_DIR/configlib"
+source formatlib
+source configlib
 
 info "Attempting to load schedule"
 

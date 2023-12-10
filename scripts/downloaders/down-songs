@@ -12,8 +12,8 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 # Import libraries
-source "$MUSICBOX_BIN_DIR/formatlib"
-source "$MUSICBOX_BIN_DIR/gdrivelib"
+source formatlib
+source gdrivelib
 
 info "Attempting to download songs"
 

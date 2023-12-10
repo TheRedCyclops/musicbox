@@ -12,7 +12,7 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 #Import libraries
-source "$MUSICBOX_BIN_DIR/formatlib"
+source formatlib
 
 logfile(){
     [ -z "$MUSICBOX_LOG_DIR" ] || warn "the logging directory isn't set" && export MUSICBOX_LOG_DIR="/var/log/musicbox"

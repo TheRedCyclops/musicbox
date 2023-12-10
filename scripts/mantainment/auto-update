@@ -12,8 +12,8 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 #Import libraries
-source "$MUSICBOX_BIN_DIR/formatlib"
-source "$MUSICBOX_BIN_DIR/rootpermlib"
+source formatlib
+source rootpermlib
 
 info "Attempting to to update"
 # Check if the program has root access
