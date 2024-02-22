@@ -10,37 +10,20 @@
 # See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program.
 # If not, see <https://www.gnu.org/licenses/>.
+
+# Import libraries
+source formatlib
 # Import Enviroment variables
 while IFS= read -r line; do
     export "${line?}"
 done < /etc/musicbox/musicbox-env # Had to hardcode this path
-# Add program libraries and scripts to path
-export PATH=$MUSICBOX_BIN_DIR:$PATH
-# Import libraries
-source formatlib
-source configlib
-#Check internet connection
-if ! ping -c 1 youtube.com > /dev/null; then
-    critical "Failed to connect to the internet!"
-    exit 1
-fi
-# Cleanup the previous day
-cleanup
-# Download the necesary files
-down-config   &
-down-schedule &
-down-songs    &
-# Check if post-processing is enabled
-# Wait to finish getting the configuration
-wait
-#Check for corrupted files
-sound-check
-if getvalue post-processing; then
-    # Run the post-processor
-    post-processor
-fi
-# Check for the case of no songs
-if [ "$(ls "$MUSICBOX_CACHE_DIR/music")" = '' ]; then
-error "No songs found!"
-fi
-scheduler
+# Check what user the script is running as:
+echo "The user that this script is running as: ${USER}"
+echo "$MUSICBOX_USER"
+case $USER in
+    "$MUSICBOX_USER") true;; #Do nothing
+    root) su "$MUSICBOX_USER" -c "$0" ;;
+    *) critical  "This script must be run by either $MUSICBOX_USER or root";; 
+esac
+# Start the load process
+"$MUSICBOX_BIN_DIR/load" | tee /var/log/musicbox.log

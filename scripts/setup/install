@@ -25,8 +25,8 @@
     fi
 # Import enviroment variables [WORKING]
     source "$installpath/scripts/musicbox-env" && info "Sourced enviroment"
-    # Add them to the default enviroment
-    cp "$installpath/scripts/musicbox-env" /usr/lib/environment.d/musicbox.conf && info "Enviroment has been added to default"
+    # Add them to the default enviroment [NOT WORKING] (currently using workaround) TODO
+    #cp "$installpath/scripts/musicbox-env" /usr/lib/environment.d/musicbox.conf && info "Enviroment has been added to default"
 # Create all directories [WORKING]
 if mkdir -p "$MUSICBOX_BIN_DIR"; then info "Created $MUSICBOX_BIN_DIR Successfully"; else error "Failed to create $MUSICBOX_BIN_DIR"; fi
 if mkdir -p "$MUSICBOX_LOG_DIR"; then info "Created $MUSICBOX_LOG_DIR Successfully"; else error "Failed to create $MUSICBOX_LOG_DIR"; fi
@@ -35,13 +35,14 @@ if mkdir -p "$MUSICBOX_CFG_DIR"; then info "Created $MUSICBOX_CFG_DIR Successful
 if mkdir -p "$MUSICBOX_CACHE_DIR"; then info "Created $MUSICBOX_CACHE_DIR Successfully"; else error "Failed to create $MUSICBOX_CACHE_DIR"; fi
 # Add DNS servers if --dnsfix is passed
 if [[ $1 == "--dnsfix" ]]; then
+    warn "Depracated!"
     echo "nameserver 9.9.9.9" > /etc/resolv.conf
     echo "dns-nameserver 9.9.9.9" >> /etc/network/interfaces
 fi
 # Check that the internet is working
     if ! ping -c 1 debian.org; then critical "Couldn't connect to the internet, exiting..."; exit 1; fi
 # Install packages [WORKING]
-    apt -y install ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc mp3info unzip wget
+    apt-get -qq -o=Dpkg::Use-Pty=0 -y install ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc mp3info unzip wget sed
         # Download and install gdrive
         # Create a temporary directory to store the download
         tmpdir=$(mktemp -d)

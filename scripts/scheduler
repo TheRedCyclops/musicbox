@@ -23,12 +23,12 @@ reloadtime=$(getvalue reload-time)
 reloadhour=$(echo "$reloadtime" | cut -d':' -f1)
 reloadmin=$(echo "$reloadtime" | cut -d':' -f2)
 # Validate the time
-if [ "$reloadhour" -gt 24 ]; then
+if [[ "$reloadhour" -gt 24 ]]; then
     reloadhour=23
     reloadmin=59
     warn "Hour field on reload time was over 23 setting to 23 and minutes to 59"
 fi
-if [ "$reloadmin" -gt 59 ]; then
+if [[ "$reloadmin" -gt 59 ]]; then
     reloadmin=59
     warn "Minute field on reload time was over 59 setting to 59"
 fi
@@ -48,13 +48,13 @@ schedule="$MUSICBOX_CACHE_DIR/schedule"
 [ -f "$schedule" ] || critical "Schedule file wasn't downloaded"
 # Create functions
 getmode(){
-    cut -d'/' -f1 "$schedule" | "sed ${1}q:d"
+    cut -d'/' -f1 "$schedule" | "sed ${1}!d"
 }
 gettime(){
-    cut -d'/' -f2 "$schedule" | "sed ${1}q:d"
+    cut -d'/' -f2 "$schedule" | "sed ${1}!d"
 }
 getsong(){
-    song=$(cut -d'/' -f3 "$schedule" | "sed ${1}q:d")
+    song=$(cut -d'/' -f3 "$schedule" | "sed ${1}!d")
     if [[ "$song" == "random" ]]; then
         for song in "$MUSICBOX_CACHE_DIR"/songs/*; do
             if ! grep -Fxq "$song" "$MUSICBOX_CACHE_DIR"/scheduledsongs; then
@@ -67,19 +67,22 @@ getsong(){
     fi
 }
 # Parse schedule
-line=0
-while [[ $line -le $(wc -l "$schedule") ]]; do
-    if [[ $(getmode $line) == "start" ]]; then
-        date "+%M   %H  *   *   *   cvlc --no-video $(getsong $line)" --date="$(gettime $line)" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
-    elif [[ $(getmode $line) == "stop" ]]; then
-        etime="$(date '+%s' --date="$(gettime $line)")"
-        song=$(getsong $line)
-        songduration="$(mp3info -p "%S" "$song")"
-        fetime=$((etime-songduration))
-        date "+%M   %H  *   *   *   cvlc --no-video $song" --date="@$fetime" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
-    else
-    warn "Misformated line found in schedule, proceeding..."
-    fi
+line=1
+critical "Failure Point"
+critical "Outputing line count $(wc -l "$schedule")"
+while [[ $line -le $(wc -l "$schedule" | cut -d' ' -f1) ]]; do
+    case $(getmode $line) in
+        start) 
+            date "+%M   %H  *   *   *   cvlc --no-video $(getsong $line)" --date="$(gettime $line)" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt";;
+        stop)
+            etime="$(date '+%s' --date="$(gettime $line)")"
+            song=$(getsong $line)
+            songduration="$(mp3info -p "%S" "$song")"
+            fetime=$((etime-songduration))
+            date "+%M   %H  *   *   *   cvlc --no-video $song" --date="@$fetime" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt";;
+        *)
+        warn "Misformated line found in schedule, proceeding...";;
+    esac
 done
 
 # Schedule Cleanup
@@ -90,9 +93,9 @@ printf '\n' >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 
 # Set newcrontab.txt to be the crontab
 crontab "$MUSICBOX_CACHE_DIR/newcrontab.txt"
-
+cronstatus=$?
 # Remove the temporary cron file
-if [[ $(sha1sum /var/spool/crontabs | cut -d' ' -f2) -eq $(sha1sum "$MUSICBOX_CACHE_DIR/newcrontab.txt" | cut -d ' ' -f2) ]]; then
+if [[ $cronstatus = 0 ]]; then
 	rm "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 else
 	critical "Failed to set crontab"

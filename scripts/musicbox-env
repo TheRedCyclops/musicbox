@@ -1,7 +1,7 @@
-MUSICBOX_BIN_DIR="/usr/lib/musicbox"
-MUSICBOX_TMP_DIR="/var/tmp/musicbox"
-MUSICBOX_LOG_DIR="/var/log/musicbox"
-MUSICBOX_CFG_DIR="/var/etc/musicbox"
-MUSICBOX_CACHE_DIR="/var/cache/musicbox"
-MUSICBOX_USER_DIR="/var/local/musicbox"
-MUSICBOX_USER="music"
+MUSICBOX_BIN_DIR=/usr/lib/musicbox
+MUSICBOX_TMP_DIR=/var/tmp/musicbox
+MUSICBOX_LOG_DIR=/var/log/musicbox
+MUSICBOX_CFG_DIR=/etc/musicbox
+MUSICBOX_CACHE_DIR=/var/cache/musicbox
+MUSICBOX_USER_DIR=/var/local/musicbox
+MUSICBOX_USER=music
