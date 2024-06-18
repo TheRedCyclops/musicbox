@@ -15,7 +15,8 @@ source formatlib
 # Loop trought all songs
 for song in "$MUSICBOX_CACHE_DIR/extra-songs"/*; do
     if ! file "$song" | grep "Audio File"; then
-        warn "one of the files in extra songs wasn't a song or wasn't correctly downloaded!"
+        warn "$song in extra songs wasn't a song or wasn't correctly downloaded!, it will not be played"
+        rm "$MUSICBOX_CACHE_DIR/extra-songs/$song"
         continue
     fi
     mp3val -f "$song"
