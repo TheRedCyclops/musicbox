@@ -42,7 +42,7 @@ fi
 # Check that the internet is working
     if ! ping -c 1 debian.org; then critical "Couldn't connect to the internet, exiting..."; exit 1; fi
 # Install packages [WORKING]
-    apt-get -qq -o=Dpkg::Use-Pty=0 -y install ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc mp3info unzip wget sed
+    apt-get -qq -o=Dpkg::Use-Pty=0 -y install ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc mp3info wget sed
         # Download and install gdrive
         # Create a temporary directory to store the download
         tmpdir=$(mktemp -d)
@@ -60,12 +60,6 @@ fi
         # Download and install yt-dlp (latest)
         wget "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp" -O /usr/local/bin/yt-dlp
         chmod +x /usr/local/bin/yt-dlp
-# Unpack the credentials
-    echo "Getting Credentials"
-    credpath=$(mktemp -d)
-    echo $credpath
-    chmod 700 "${credpath:?}"
-    unzip "$installpath/creds.zip" -d "${credpath:?}" || error "Failed to extract credentials"
 # Enable cron
     systemctl enable --now cron
 # Add unprivileged user
@@ -78,14 +72,13 @@ fi
     chown "$MUSICBOX_USER" "$MUSICBOX_USER_DIR"
 
     # Copy drive credentials to home
-    cp "$credpath/gdrive_export-***REMOVED***.tar" "$MUSICBOX_USER_DIR"
+    cp "creds/gdrive_export-***REMOVED***.tar" "$MUSICBOX_USER_DIR"
     # Give permision to the user to import them
     chown "$MUSICBOX_USER" "$MUSICBOX_USER_DIR/gdrive_export-***REMOVED***.tar"
     # Setup drive access
     su -l "$MUSICBOX_USER" -s "/bin/bash" -c "$MUSICBOX_BIN_DIR/gdrive account import $MUSICBOX_USER_DIR/gdrive_export-***REMOVED***.tar"
     # Remove credentials file
     rm "$MUSICBOX_USER_DIR/gdrive_export-***REMOVED***.tar"
-    rm -R "$credpath"
 
 # Setup default crontabs
     # Root Crontab
