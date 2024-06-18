@@ -1,0 +1,2 @@
+#!/bin/bash
+# Send an alert via email in case of a critical failure 
