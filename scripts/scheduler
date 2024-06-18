@@ -23,15 +23,15 @@ reloadtime=$(getvalue reload-time)
 reloadhour=$(echo "$reloadtime" | cut -d':' -f1)
 reloadmin=$(echo "$reloadtime" | cut -d':' -f2)
 # Validate the time
-if [[ "$reloadhour" -gt 24 ]]; then
-    reloadhour=23
-    reloadmin=59
-    warn "Hour field on reload time was over 23 setting to 23 and minutes to 59"
-fi
-if [[ "$reloadmin" -gt 59 ]]; then
-    reloadmin=59
-    warn "Minute field on reload time was over 59 setting to 59"
-fi
+#if [[ "$reloadhour" -gt 24 ]]; then
+#    reloadhour=23
+#    reloadmin=59
+#    warn "Hour field on reload time was over 23 setting to 23 and minutes to 59"
+#fi
+#if [[ "$reloadmin" -gt 59 ]]; then
+#    reloadmin=59
+#    warn "Minute field on reload time was over 59 setting to 59"
+#fi
 
 # Write start of crontab to a temporary file
 info "Writting crontab"
@@ -48,13 +48,13 @@ schedule="$MUSICBOX_CACHE_DIR/schedule"
 [ -f "$schedule" ] || critical "Schedule file wasn't downloaded"
 # Create functions
 getmode(){
-    cut -d'/' -f1 "$schedule" | "sed ${1}!d"
+    awk -v FPAT='[^[:space:]]+' '{print $1}' "$schedule"  | exec $(printf 'sed %s!d' "${1}")
 }
 gettime(){
-    cut -d'/' -f2 "$schedule" | "sed ${1}!d"
+    awk -v FPAT='[^[:space:]]+' '{print $2}' "$schedule"  | exec $(printf 'sed %s!d' "${1}")
 }
 getsong(){
-    song=$(cut -d'/' -f3 "$schedule" | "sed ${1}!d")
+    song=$(awk -v FPAT='[^[:space:]]+' '{print $3}' "$schedule" | exec $(printf 'sed %s!d' "${1}"))
     if [[ "$song" == "random" ]]; then
         for song in "$MUSICBOX_CACHE_DIR"/songs/*; do
             if ! grep -Fxq "$song" "$MUSICBOX_CACHE_DIR"/scheduledsongs; then
@@ -69,7 +69,7 @@ getsong(){
 # Parse schedule
 line=1
 critical "Failure Point"
-critical "Outputing line count $(wc -l "$schedule")"
+critical "Outputing test $(wc -l "$schedule" | cut -d' ' -f1)"
 while [[ $line -le $(wc -l "$schedule" | cut -d' ' -f1) ]]; do
     case $(getmode $line) in
         start) 
@@ -83,6 +83,7 @@ while [[ $line -le $(wc -l "$schedule" | cut -d' ' -f1) ]]; do
         *)
         warn "Misformated line found in schedule, proceeding...";;
     esac
+    ((line++))
 done
 
 # Schedule Cleanup
