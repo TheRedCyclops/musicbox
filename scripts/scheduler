@@ -23,14 +23,14 @@ reloadtime=$(getvalue reload-time)
 reloadhour=$(echo "$reloadtime" | cut -d':' -f1)
 reloadmin=$(echo "$reloadtime" | cut -d':' -f2)
 # Validate the time
-#if [[ "$reloadhour" -gt 24 ]]; then
+#if [[ $reloadhour -gt 24 ]]; then
 #    reloadhour=23
 #    reloadmin=59
-#    warn "Hour field on reload time was over 23 setting to 23 and minutes to 59"
+#    warn "Hour field on reload time was over 23, setting to 23 and minutes to 59"
 #fi
-#if [[ "$reloadmin" -gt 59 ]]; then
+#if [[ $reloadmin -gt 59 ]]; then
 #    reloadmin=59
-#    warn "Minute field on reload time was over 59 setting to 59"
+#    warn "Minute field on reload time was over 59, setting to 59"
 #fi
 
 # Write start of crontab to a temporary file
