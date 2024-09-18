@@ -16,14 +16,11 @@ source formatlib
 source gdrivelib
 # Download the configuration
 # Check if the file exists if so download it
-if downloadfile "$(getfileid 'Configuration')" "$MUSICBOX_TMP_DIR/dirty-config"; then
-# Remove comments
-grep -v '#.*' "$MUSICBOX_TMP_DIR/dirty-config" > "$MUSICBOX_CFG_DIR"/config
-# Remove spaces around the options
-sed -i 's/^ *//;s/ *$//' "$MUSICBOX_CFG_DIR"/config
-# Remove temporary file
-rm "$MUSICBOX_TMP_DIR/dirty-config"
+if getfileid 'Configuration'; then
+    # First download the file, remove comments with grep and remove starting and trailing spaces with sed
+    # rm comments |                   download the file                      |                  remove spaces
+    grep -v '#.*' <(downloadfile "$(getfileid 'Configuration')" /dev/stdout) | sed 's/^ *//;s/ *$//' "$MUSICBOX_CFG_DIR"/config
 else
-error "Configuration file not found!"
-exit 1
+    error "Configuration file not found!"
+    exit 1
 fi
