@@ -9,5 +9,5 @@ COPY scripts /scripts
 COPY creds /creds
 
 RUN chmod +x /scripts/setup/install && /scripts/setup/install
-
+USER musicbox
 ENTRYPOINT [ "/usr/lib/musicbox/load" ]
