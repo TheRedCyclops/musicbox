@@ -16,6 +16,8 @@ source formatlib
 source gdrivelib
 
 info "Attempting to download schedule"
+# Initialize gdrive
+gdriveinit
 
 # Download the schedule and remove comments
 sed '/^[ ]*#.*/d' <(downloadfile "$(getfileid Schedule)") >> "$MUSICBOX_CACHE_DIR"/schedule

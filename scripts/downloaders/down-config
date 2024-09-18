@@ -15,6 +15,9 @@
 source formatlib
 source gdrivelib
 # Download the configuration
+# Initialize gdrive
+gdriveinit
+
 # Check if the file exists if so download it
 if getfileid 'Configuration'; then
     # First download the file, remove comments with grep and remove starting and trailing spaces with sed

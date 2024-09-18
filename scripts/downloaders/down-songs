@@ -16,6 +16,8 @@ source formatlib
 source gdrivelib
 
 info "Attempting to download songs"
+# Initialize gdrive
+gdriveinit
 
 # Get the song list and remove comments
 grep -o '^[^#]*' <(downloadfile "$(getfileid "Song List")") > "$MUSICBOX_TMP_DIR/song-list"
