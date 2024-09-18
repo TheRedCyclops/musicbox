@@ -17,7 +17,7 @@ source formatlib
 # Add the functions
 # Gets the File ID from google drive of a file specified with a regex
 gdriveinit() {
-    gdrive account switch ***REMOVED***
+    gdrive account switch "$EMAIL"
 }
 getfileid(){
     # Allow for searching inside folders

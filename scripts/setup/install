@@ -72,13 +72,15 @@ fi
     chown "$MUSICBOX_USER" "$MUSICBOX_USER_DIR"
 
     # Copy drive credentials to home
-    cp "creds/gdrive_export-***REMOVED***.tar" "$MUSICBOX_USER_DIR"
+    cp "creds/gdrive_export-*.tar" "$MUSICBOX_USER_DIR"
     # Give permision to the user to import them
-    chown "$MUSICBOX_USER" "$MUSICBOX_USER_DIR/gdrive_export-***REMOVED***.tar"
+    chown "$MUSICBOX_USER" "$MUSICBOX_USER_DIR/gdrive_export-*.tar"
     # Setup drive access
-    su -l "$MUSICBOX_USER" -s "/bin/bash" -c "$MUSICBOX_BIN_DIR/gdrive account import $MUSICBOX_USER_DIR/gdrive_export-***REMOVED***.tar"
+    EMAIL=$(tar tf "$MUSICBOX_USER_DIR/gdrive_export-*.tar" | head -n 1 | sed -e 's/\///' -e '1!p')
+    export EMAIL
+    su -l "$MUSICBOX_USER" -s "/bin/bash" -c "$MUSICBOX_BIN_DIR/gdrive account import $MUSICBOX_USER_DIR/gdrive_export-*.tar"
     # Remove credentials file
-    rm "$MUSICBOX_USER_DIR/gdrive_export-***REMOVED***.tar"
+    rm "$MUSICBOX_USER_DIR/gdrive_export-*.tar"
 
 # Setup default crontabs
     # Root Crontab
