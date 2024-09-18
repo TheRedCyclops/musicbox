@@ -17,11 +17,8 @@ source gdrivelib
 
 info "Attempting to download songs"
 
-# Get the song list
-downloadfile "$(getfileid "Song List")" "$MUSICBOX_TMP_DIR"/song-list
-# Remove comments
-grep -o '^[^#]*' "$MUSICBOX_TMP_DIR"/song-list > "$MUSICBOX_TMP_DIR/clean-song-list"
-mv "$MUSICBOX_TMP_DIR/clean-song-list" "$MUSICBOX_CACHE_DIR/song-list"
+# Get the song list and remove comments
+grep -o '^[^#]*' <(downloadfile "$(getfileid "Song List")") > "$MUSICBOX_TMP_DIR/song-list"
 # Download the songs
 mkdir "$MUSICBOX_CACHE_DIR/music"
 # From Youtube
