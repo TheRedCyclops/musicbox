@@ -21,7 +21,8 @@ source formatlib
 source configlib
 #Check internet connection
 if ! ping -c 1 youtube.com > /dev/null; then
-    critical "Failed to connect to the internet!"
+    critical "Failed to connect to the internet!, using previous config as fallback"
+    scheduler
     exit 1
 fi
 # Cleanup the previous day
