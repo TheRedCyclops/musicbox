@@ -77,7 +77,6 @@ fi
     chown "$MUSICBOX_USER" "$MUSICBOX_USER_DIR/gdrive_export-"*".tar"
     # Setup drive access
     EMAIL=$(tar tf "$MUSICBOX_USER_DIR/gdrive_export-"*".tar" | head -n 1 | sed -e 's/\///' -e '1!p')
-    echo "MUSICBOX_EMAIL=$EMAIL" >> "$MUSICBOX_CFG_DIR/musicbox-env"
     su -l "$MUSICBOX_USER" -s "/bin/bash" -c "$MUSICBOX_BIN_DIR/gdrive account import $MUSICBOX_USER_DIR/gdrive_export-"*".tar"
     # Remove credentials file
     rm "$MUSICBOX_USER_DIR/gdrive_export-*.tar"
@@ -94,6 +93,8 @@ fi
     chmod -R +x "$MUSICBOX_BIN_DIR"
     # Move enviroment variable file to config dir
     mv "$MUSICBOX_BIN_DIR"/musicbox-env "$MUSICBOX_CFG_DIR"
+    # Add var for email
+    echo "MUSICBOX_EMAIL=$EMAIL" >> "$MUSICBOX_CFG_DIR"/musicbox-env
 #Create checksums for integrity testing
 sha1sum "$MUSICBOX_BIN_DIR"/* > "$MUSICBOX_CFG_DIR"/sha1sums
 
