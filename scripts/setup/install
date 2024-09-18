@@ -42,7 +42,7 @@ fi
 # Check that the internet is working and update package db
     if ! apt-get -o=Dpkg::Use-Pty=0 -qq update; then critical "Couldn't connect to the internet or package database update failed, exiting..."; exit 1; fi
 # Install packages [WORKING]
-    apt-get -qq -o=Dpkg::Use-Pty=0 -y install ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc mp3info wget sed
+    apt-get -qq -o=Dpkg::Use-Pty=0 -y install ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc mp3info wget sed iputils-ping cron
         # Download and install gdrive
         # Create a temporary directory to store the download
         tmpdir=$(mktemp -d)
