@@ -16,9 +16,6 @@ source formatlib
 source gdrivelib
 
 info "Attempting to download songs"
-# Initialize gdrive
-gdriveinit
-
 # Get the song list and remove comments
 # Download the songs
 mkdir -p "$MUSICBOX_CACHE_DIR/music"
