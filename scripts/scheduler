@@ -48,13 +48,13 @@ schedule="$MUSICBOX_CACHE_DIR/schedule"
 [ -f "$schedule" ] || critical "Schedule file wasn't downloaded"
 # Create functions
 getmode(){
-    awk -v FPAT='[^[:space:]]+' '{print $1}' "$schedule"  | exec $(printf 'sed %s!d' "${1}")
+    awk -v FPAT='[^[:space:]]+' "NR==$1 {print \$1}" "$schedule"
 }
 gettime(){
-    awk -v FPAT='[^[:space:]]+' '{print $2}' "$schedule"  | exec $(printf 'sed %s!d' "${1}")
+    awk -v FPAT='[^[:space:]]+' "NR==$1 {print \$2}" "$schedule"
 }
 getsong(){
-    song=$(awk -v FPAT='[^[:space:]]+' '{print $3}' "$schedule" | exec $(printf 'sed %s!d' "${1}"))
+    song=$(awk -v FPAT='[^[:space:]]+' "NR==$1 {print \$3}" "$schedule")
     if [[ "$song" == "random" ]]; then
         for song in "$MUSICBOX_CACHE_DIR"/songs/*; do
             if ! grep -Fxq "$song" "$MUSICBOX_CACHE_DIR"/scheduledsongs; then
@@ -68,8 +68,8 @@ getsong(){
 }
 # Parse schedule
 line=1
-critical "Failure Point"
-critical "Outputing test $(wc -l "$schedule" | cut -d' ' -f1)"
+info "Failure Point"
+info "Outputing test $(wc -l "$schedule" | cut -d' ' -f1)"
 while [[ $line -le $(wc -l "$schedule" | cut -d' ' -f1) ]]; do
     case $(getmode $line) in
         start) 
@@ -81,7 +81,7 @@ while [[ $line -le $(wc -l "$schedule" | cut -d' ' -f1) ]]; do
             fetime=$((etime-songduration))
             date "+%M   %H  *   *   *   cvlc --no-video $song" --date="@$fetime" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt";;
         *)
-        warn "Misformated line found in schedule, proceeding...";;
+        warn "Misformated line ($line) found in schedule, proceeding...";;
     esac
     ((line++))
 done
