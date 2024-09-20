@@ -19,10 +19,13 @@ info "Attempting to download songs"
 # Get the song list and remove comments
 # Download the songs
 mkdir -p "$MUSICBOX_CACHE_DIR/music"
+grep -o '^[^#]*' <(downloadfile 'Song List' /dev/stdout) > "$MUSICBOX_CACHE_DIR"/url-list
+cat "$MUSICBOX_CACHE_DIR"/url-list
 # From Youtube
 while read -r url; do
-yt-dlp -x --audio-format mp3 --audio-quality 0 --sponsorblock-remove all -o "$MUSICBOX_CACHE_DIR/music/yt.%(id)s.%(ext)s" "$url"
-done <"$(grep -o '^[^#]*' <(downloadfile 'Song List' /dev/stdout))"
+echo parsing "$url"
+yt-dlp -x --audio-format mp3 --audio-quality 0 --sponsorblock-remove all -o "$MUSICBOX_CACHE_DIR"'/music/yt.%(id)s.%(ext)s' "$url"
+done <"$MUSICBOX_CACHE_DIR/url-list"
 # From the extra songs folder
 mkdir "$MUSICBOX_CACHE_DIR/extra-songs"
 downloadfile 'Extra Songs' "$MUSICBOX_CACHE_DIR/extra-songs"
