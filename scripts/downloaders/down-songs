@@ -20,13 +20,12 @@ info "Attempting to download songs"
 gdriveinit
 
 # Get the song list and remove comments
-grep -o '^[^#]*' <(downloadfile 'Song List') > "$MUSICBOX_TMP_DIR/song-list"
 # Download the songs
 mkdir -p "$MUSICBOX_CACHE_DIR/music"
 # From Youtube
 while read -r url; do
 yt-dlp -x --audio-format mp3 --audio-quality 0 --sponsorblock-remove all -o "$MUSICBOX_CACHE_DIR/music/yt.%(id)s.%(ext)s" "$url"
-done <"$MUSICBOX_TMP_DIR/song-list"
+done <"$(grep -o '^[^#]*' <(downloadfile 'Song List' /dev/stdout))"
 # From the extra songs folder
 mkdir "$MUSICBOX_CACHE_DIR/extra-songs"
 downloadfile 'Extra Songs' "$MUSICBOX_CACHE_DIR/extra-songs"
