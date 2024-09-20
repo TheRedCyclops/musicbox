@@ -23,4 +23,5 @@ error(){
 }
 critical(){
     printf %b"[ $(date +%T) | $(basename "$0") ] "CRITICAL_ERROR: '\x1b[48;5;9m\x1b[38;5;255m%s\e[0;0m\n' "$1"
+    exit 1;
 }
