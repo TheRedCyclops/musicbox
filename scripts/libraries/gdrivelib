@@ -34,8 +34,12 @@ downloadfile(){
     tmpdir=$(mktemp -d)
     gdrive files download "$1" --destination "$2" 2> "$tmpdir/gdrive-error"
     if grep -q 'fileNotDownloadable' "$tmpdir/gdrive-error"; then
-        gdrive files export "$1" "$2.txt"
-        mv "$2.txt" "$2"
+        local tempfile
+        tempfile="$(mktemp --suffix=".txt" -p "$MUSICBOX_TMP_DIR")" || error "failed to create temporary file (gdrivelib)"
+        gdrive files export --overwrite "$1" "$tempfile"
+        # Done in two steps to allow writing to stdout
+        cp "$tempfile" "$2"
+        rm "$tempfile"
     fi
     if grep -q 'is a directory' "$tmpdir/gdrive-error"; then
         gdrive files download --recursive "$1" --destination "$2"
