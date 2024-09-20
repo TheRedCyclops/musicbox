@@ -39,17 +39,17 @@ downloadfile(){
     local tempfile
     tempfile="$(mktemp --suffix=".txt" -p "$MUSICBOX_TMP_DIR")" || error "failed to create temporary file (gdrivelib)"
     error=$(gdrive files download "$id" --destination "$tempfile" 2>&1)
-    while [[ -z "$error" ]]; do
+    while [[ -n "$error" ]]; do
         case "$error" in
             # Download documents
             *'fileNotDownloadable'*)
                 unset error
-                error=$(gdrive files export --overwrite "$id" "$tempfile" 2>&1)
+                error=$(gdrive files export --overwrite "$id" "$tempfile" 1>/dev/null 2>&1)
             ;;
             # Download directories
             *'is a directory'*)
                 unset error
-                error=$(gdrive files download --recursive "$id" --destination "$tempfile" 2>&1)
+                error=$(gdrive files download --recursive "$id" --destination "$tempfile" 1>/dev/null 2>&1)
             ;;
             '')
                 #break;
