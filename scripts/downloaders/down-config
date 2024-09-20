@@ -15,15 +15,7 @@
 source formatlib
 source gdrivelib
 # Download the configuration
-# Initialize gdrive
-gdriveinit
-
-# Check if the file exists if so download it
-if getfileid 'Configuration'; then
-    # First download the file, remove comments with grep and remove starting and trailing spaces with sed
-    # rm comments |                   download the file                      |                  remove spaces
-    grep -v '#.*' <(downloadfile "$(getfileid 'Configuration')" /dev/stdout) | sed 's/^ *//;s/ *$//' "$MUSICBOX_CFG_DIR"/config
-else
-    error "Configuration file not found!"
-    exit 1
-fi
+info "Attempting to download configuration"
+# First download the file, remove comments with grep and remove starting and trailing spaces with sed
+# rm comments |                   download the file                      |                  remove spaces
+grep -v '#.*' <(downloadfile 'Configuration' /dev/stdout) | sed 's/^ *//;s/ *$//' "$MUSICBOX_CFG_DIR"/config

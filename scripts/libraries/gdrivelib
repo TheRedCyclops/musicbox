@@ -17,32 +17,51 @@ source formatlib
 # Add the functions
 # Gets the File ID from google drive of a file specified with a regex
 gdriveinit() {
-    gdrive account switch "$MUSICBOX_EMAIL"
+    gdrive account switch "$MUSICBOX_EMAIL" > /dev/null
 }
 getfileid(){
-    # Allow for searching inside folders
-    if [ "$1" = "--parent" ]; then
-        gdrive files list --parent "$2" | grep -i -E "$3" | sed -E 's/[ ].*//g'
-    fi
+    #TODO: Allow for searching inside folders, reimplement with 
+    #if [ "$1" = "--parent" ]; then
+    #    gdrive files list --parent "$2" | grep -i -E "$3" | sed -E 's/[ ].*//g'
+    #fi
     gdrive files list | grep -i -E "$1" | sed -E 's/[ ].*//g'
 }
-# Download a file or folder from google drive given a file id to a given path
+# Download a file or folder from google drive given the name
 downloadfile(){
+    gdriveinit
+    # Get the file ID
+    id=$(getfileid "$1") || critical "$1 file not found!"
+    # Check for output file
     if [ -z "$2" ]; then
-    error "Output file wasn't especifed"
+    critical "Output file wasn't especifed"
     fi
-    tmpdir=$(mktemp -d)
-    gdrive files download "$1" --destination "$2" 2> "$tmpdir/gdrive-error"
-    if grep -q 'fileNotDownloadable' "$tmpdir/gdrive-error"; then
-        local tempfile
-        tempfile="$(mktemp --suffix=".txt" -p "$MUSICBOX_TMP_DIR")" || error "failed to create temporary file (gdrivelib)"
-        gdrive files export --overwrite "$1" "$tempfile"
-        # Done in two steps to allow writing to stdout
-        cp "$tempfile" "$2"
-        rm "$tempfile"
-    fi
-    if grep -q 'is a directory' "$tmpdir/gdrive-error"; then
-        gdrive files download --recursive "$1" --destination "$2"
-    fi
-    rm "$tmpdir/gdrive-error"
+    # Try to download as file, if it fails check if it's a document, a directory or another error
+    local tempfile
+    tempfile="$(mktemp --suffix=".txt" -p "$MUSICBOX_TMP_DIR")" || error "failed to create temporary file (gdrivelib)"
+    error=$(gdrive files download "$id" --destination "$tempfile" 2>&1)
+    while [[ -z "$error" ]]; do
+        case "$error" in
+            # Download documents
+            *'fileNotDownloadable'*)
+                unset error
+                error=$(gdrive files export --overwrite "$id" "$tempfile" 2>&1)
+            ;;
+            # Download directories
+            *'is a directory'*)
+                unset error
+                error=$(gdrive files download --recursive "$id" --destination "$tempfile" 2>&1)
+            ;;
+            '')
+                #break;
+                true;
+            ;;
+            *)
+                critical "Unhandled error occured when trying to download $1, [[$error]]"
+            ;;
+
+        esac
+    done
+    # Done in two steps to allow writing to stdout
+    cp "$tempfile" "$2"
+    rm "$tempfile"
 }
