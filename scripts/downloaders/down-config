@@ -18,4 +18,4 @@ source gdrivelib
 info "Attempting to download configuration"
 # First download the file, remove comments with grep and remove starting and trailing spaces with sed
 # rm comments |                   download the file                      |                  remove spaces
-grep -v '#.*' <(downloadfile 'Configuration' /dev/stdout) | sed 's/^ *//;s/ *$//' "$MUSICBOX_CFG_DIR"/config
+grep -v '#.*' <(downloadfile 'Configuration' /dev/stdout) | sed 's/^ *//;s/ *$//' > "$MUSICBOX_CFG_DIR"/config
