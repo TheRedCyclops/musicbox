@@ -29,6 +29,8 @@ fi
 cleanup
 # Download the necesary files
 down-config   &
+# Only continue if a config already exists, otherwise wait for it to be downloaded
+[ -f "$MUSICBOX_CFG_DIR"/config ] || wait
 down-schedule &
 down-songs    &
 # Check if post-processing is enabled
