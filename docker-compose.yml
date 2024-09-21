@@ -1,0 +1,10 @@
+services:
+  musicbox:
+    container_name: musicbox
+    image: musicbox:latest
+    devices:
+      - /dev/snd:/dev/snd
+    volumes:
+      - ./cache:$MUSICBOX_CACHE_DIR
+      - ./cfg:$MUSICBOX_CFG_DIR
+      - ./log:$MUSICBOX_LOG_DIR
