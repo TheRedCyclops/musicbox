@@ -19,26 +19,12 @@ info "Attempting to load schedule"
 
 # Get when the program should run again
 reloadtime=$(getvalue reload-time)
-# Separate it into Hours and Minutes
-reloadhour=$(echo "$reloadtime" | cut -d':' -f1)
-reloadmin=$(echo "$reloadtime" | cut -d':' -f2)
-# Validate the time
-#if [[ $reloadhour -gt 24 ]]; then
-#    reloadhour=23
-#    reloadmin=59
-#    warn "Hour field on reload time was over 23, setting to 23 and minutes to 59"
-#fi
-#if [[ $reloadmin -gt 59 ]]; then
-#    reloadmin=59
-#    warn "Minute field on reload time was over 59, setting to 59"
-#fi
-
 # Write start of crontab to a temporary file
 info "Writting crontab"
 echo "
 #User Crontab
 # min    hour    day    month    weekday    command
-$reloadmin      $reloadhour       *      *        1-5        $MUSICBOX_BIN_DIR/load | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)/.log"\
+$(date '+%M   %H     *    *      1-5' --date="$reloadtime")        $MUSICBOX_BIN_DIR/load | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d).log"\
    > "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 
 # Set the schedule file
@@ -53,38 +39,34 @@ gettime(){
     awk -v FPAT='[^[:space:]]+' "NR==$1 {print \$2}" "$schedule"
 }
 getsong(){
+    touch "$MUSICBOX_CACHE_DIR"/scheduledsongs
     song=$(awk -v FPAT='[^[:space:]]+' "NR==$1 {print \$3}" "$schedule")
-    if [[ "$song" == "random" ]]; then
-        for songfile in "$MUSICBOX_CACHE_DIR"/songs/*; do
+    if [[ "$song" == *"random"* ]]; then
+        for songfile in "$MUSICBOX_CACHE_DIR"/music/*; do
             if ! grep -Fxq "$songfile" "$MUSICBOX_CACHE_DIR"/scheduledsongs; then
                 echo "$songfile" | tee -a "$MUSICBOX_CACHE_DIR"/scheduledsongs
-                return 0
+                return
             fi
         done
-        warn "There are more timeslots with a random song than songs to pick from, one or more will be repeated"
         rm  "$MUSICBOX_CACHE_DIR"/scheduledsongs
         getsong "$1"
-    #elif [[ -f "$MUSICBOX_CACHE_DIR/extra-songs/${song:?}" ]]; then
     else
         echo "$MUSICBOX_CACHE_DIR/extra-songs/${song:?}"
-    #else
-    #    error "Specified song not found or not parsed properly!"
     fi
 }
 # Parse schedule
 line=1
-info "Failure Point"
-info "Outputing test $(wc -l "$schedule" | cut -d' ' -f1)"
+command="cvlc --no-video"
 while [[ $line -le $(wc -l "$schedule" | cut -d' ' -f1) ]]; do
     case $(getmode $line) in
         start) 
-            date "+%M   %H  *   *   *   cvlc --no-video $(getsong $line)" --date="$(gettime $line)" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt";;
+            echo "$(date '+%M   %H' --date="$(gettime $line)")  *   *   *   $command $(getsong $line)" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt";;
         stop)
-            etime="$(date '+%s' --date="$(gettime $line)")"
+            epochtime="$(date '+%s' --date="$(gettime $line)")"
             song=$(getsong $line)
             songduration="$(mp3info -p "%S" "$song")"
-            fetime=$((etime-songduration))
-            date "+%M   %H  *   *   *   cvlc --no-video $song" --date="@$fetime" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt";;
+            finalepochtime=$((epochtime-songduration))
+            echo "$(date '+%M   %H' --date="@$finalepochtime") *   *   *   $command $song" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt";;
         *)
         warn "Misformated line ($line) found in schedule, proceeding...";;
     esac
