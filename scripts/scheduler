@@ -36,10 +36,9 @@ reloadmin=$(echo "$reloadtime" | cut -d':' -f2)
 # Write start of crontab to a temporary file
 info "Writting crontab"
 echo "
-#User Cron tab
+#User Crontab
 # min    hour    day    month    weekday    command
-  @reboot    $MUSICBOX_BIN_DIR/load | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d).log
-  $reloadmin      $reloadhour       *      *        1-5        $MUSICBOX_BIN_DIR/load | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)/.log"\
+$reloadmin      $reloadhour       *      *        1-5        $MUSICBOX_BIN_DIR/load | tee $MUSICBOX_LOG_DIR/$(date +%Y-%m-%d)/.log"\
    > "$MUSICBOX_CACHE_DIR/newcrontab.txt"
 
 # Set the schedule file
@@ -56,14 +55,20 @@ gettime(){
 getsong(){
     song=$(awk -v FPAT='[^[:space:]]+' "NR==$1 {print \$3}" "$schedule")
     if [[ "$song" == "random" ]]; then
-        for song in "$MUSICBOX_CACHE_DIR"/songs/*; do
-            if ! grep -Fxq "$song" "$MUSICBOX_CACHE_DIR"/scheduledsongs; then
-                break
+        for songfile in "$MUSICBOX_CACHE_DIR"/songs/*; do
+            if ! grep -Fxq "$songfile" "$MUSICBOX_CACHE_DIR"/scheduledsongs; then
+                echo "$songfile" | tee -a "$MUSICBOX_CACHE_DIR"/scheduledsongs
+                return 0
             fi
         done
-        echo "$song" | tee "$MUSICBOX_CACHE_DIR"/scheduledsongs
+        warn "There are more timeslots with a random song than songs to pick from, one or more will be repeated"
+        rm  "$MUSICBOX_CACHE_DIR"/scheduledsongs
+        getsong "$1"
+    #elif [[ -f "$MUSICBOX_CACHE_DIR/extra-songs/${song:?}" ]]; then
     else
-    echo "$MUSICBOX_CACHE_DIR/extra-songs/${song:?}" || error "Specified song not found or not parsed properly!"
+        echo "$MUSICBOX_CACHE_DIR/extra-songs/${song:?}"
+    #else
+    #    error "Specified song not found or not parsed properly!"
     fi
 }
 # Parse schedule
@@ -86,18 +91,14 @@ while [[ $line -le $(wc -l "$schedule" | cut -d' ' -f1) ]]; do
     ((line++))
 done
 
-# Schedule Cleanup
-date "+%M   %H  *   *   *   $MUSICBOX_BIN_DIR/cleanup" --date="$(getvalue cleanup-time)" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
-
 # Add newline at the end of crontab
 printf '\n' >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
-
+info "$(cat "$MUSICBOX_CACHE_DIR/newcrontab.txt")"
 # Set newcrontab.txt to be the crontab
-crontab "$MUSICBOX_CACHE_DIR/newcrontab.txt"
-cronstatus=$?
-# Remove the temporary cron file
-if [[ $cronstatus = 0 ]]; then
-	rm "$MUSICBOX_CACHE_DIR/newcrontab.txt"
-else
+if ! supercronic -test "$MUSICBOX_CACHE_DIR/newcrontab.txt"; then
 	critical "Failed to set crontab"
 fi
+# Remove the temporary cron file
+cp "$MUSICBOX_CACHE_DIR/newcrontab.txt" "$MUSICBOX_CFG_DIR"/crontab
+rm "$MUSICBOX_CACHE_DIR/newcrontab.txt"
+supercronic "$MUSICBOX_CFG_DIR"/crontab
