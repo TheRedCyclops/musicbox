@@ -68,14 +68,16 @@ while [[ $line -le $(wc -l "$schedule" | cut -d' ' -f1) ]]; do
             finalepochtime=$((epochtime-songduration))
             echo "$(date '+%M   %H' --date="@$finalepochtime") *   *   *   $command $song" >> "$MUSICBOX_CACHE_DIR/newcrontab.txt";;
         *)
-        warn "Misformated line ($line) found in schedule, proceeding...";;
+        error "Misformated line ($line) found in schedule, proceeding...";;
     esac
     ((line++))
 done
 
 # Add newline at the end of crontab
 printf '\n' >> "$MUSICBOX_CACHE_DIR/newcrontab.txt"
-info "$(cat "$MUSICBOX_CACHE_DIR/newcrontab.txt")"
+info "Finished writing crontab"
+
+$MUSICBOX_DEBUG || info "$(cat "$MUSICBOX_CACHE_DIR/newcrontab.txt")"
 # Set newcrontab.txt to be the crontab
 if ! supercronic -test "$MUSICBOX_CACHE_DIR/newcrontab.txt"; then
 	critical "Failed to set crontab"
