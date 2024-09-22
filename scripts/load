@@ -13,7 +13,7 @@
 # Import Enviroment variables
 while IFS= read -r line; do
     export "${line?}"
-done < /etc/musicbox/musicbox-env # Had to hardcode this path
+done < /.env # Had to hardcode this path
 # Add program libraries and scripts to path
 export PATH=$MUSICBOX_BIN_DIR:$PATH
 # Import libraries

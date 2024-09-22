@@ -24,7 +24,7 @@
     exit 1
     fi
 # Import enviroment variables [WORKING]
-    source "$installpath/scripts/musicbox-env" && info "Sourced enviroment"
+    source "$installpath/.env" && info "Sourced enviroment"
     # Add them to the default enviroment [NOT WORKING] (currently using workaround) TODO
     #cp "$installpath/scripts/musicbox-env" /usr/lib/environment.d/musicbox.conf && info "Enviroment has been added to default"
 # Create all directories [WORKING]
@@ -72,12 +72,12 @@ fi
     chown "$MUSICBOX_USER" "$MUSICBOX_USER_DIR"
 
     # Copy drive credentials to home
-    cp "$installpath/creds/gdrive_export-"*".tar" "$MUSICBOX_USER_DIR"
+    cp "$installpath/creds/gdrive_export.tar" "$MUSICBOX_USER_DIR"
     # Give permision to the user to import them
-    chown "$MUSICBOX_USER" "$MUSICBOX_USER_DIR/gdrive_export-"*".tar"
+    chown "$MUSICBOX_USER" "$MUSICBOX_USER_DIR/gdrive_export.tar"
     # Setup drive access
-    EMAIL=$(tar tf "$MUSICBOX_USER_DIR/gdrive_export-"*".tar" | head -n 1 | sed -e 's/\///' -e '1!p')
-    su -l "$MUSICBOX_USER" -s "/bin/bash" -c "$MUSICBOX_BIN_DIR/gdrive account import $MUSICBOX_USER_DIR/gdrive_export-"*".tar"
+    EMAIL=$(tar tf "$MUSICBOX_USER_DIR/gdrive_export.tar" | head -n 1 | sed -e 's/\///' -e '1!p')
+    su -l "$MUSICBOX_USER" -s "/bin/bash" -c "$MUSICBOX_BIN_DIR/gdrive account import $MUSICBOX_USER_DIR/gdrive_export.tar"
     # Remove credentials file
     rm "$MUSICBOX_USER_DIR/gdrive_export-*.tar"
 # Copy scripts to bin

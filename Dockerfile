@@ -6,6 +6,7 @@ RUN mkdir -p /cron && mkdir -p /scripts && mkdir -p /creds
 
 COPY scripts /scripts
 COPY creds /creds
+COPY .env .env
 RUN apt-get update && apt-get install -y\
        ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc mp3info wget sed iputils-ping cron file curl
 # Latest releases available at https://github.com/aptible/supercronic/releases
