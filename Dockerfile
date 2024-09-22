@@ -1,9 +1,5 @@
 FROM debian
 LABEL maintainer="***REMOVED***"
-
-RUN mkdir -p /scripts
-COPY scripts /scripts
-COPY .env .env
 RUN apt-get update && apt-get install -y\
        ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc mp3info wget sed iputils-ping cron file curl
 # Latest releases available at https://github.com/aptible/supercronic/releases
@@ -16,6 +12,10 @@ RUN curl -fsSLO "$SUPERCRONIC_URL" \
 && chmod +x "$SUPERCRONIC" \
 && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
 && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
+RUN mkdir -p /scripts
+COPY scripts /scripts
+COPY .env .env
+
 RUN chmod +x /scripts/setup/install && /scripts/setup/install
 USER musicbox
 ENTRYPOINT [ "/usr/lib/musicbox/load" ]
