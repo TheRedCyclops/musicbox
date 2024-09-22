@@ -8,3 +8,12 @@ services:
       - ./cache:$MUSICBOX_CACHE_DIR
       - ./cfg:$MUSICBOX_CFG_DIR
       - ./log:$MUSICBOX_LOG_DIR
+    env_file:
+      - .env
+    environment:
+      - MUSICBOX_GDRIVE_TAR=/run/secrets/gdrive_export_tar
+    secrets:
+      - gdrive_export_tar
+secrets:
+  gdrive_export_tar:
+    file: creds/gdrive_export.tar

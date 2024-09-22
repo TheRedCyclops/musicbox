@@ -25,6 +25,8 @@ if ! ping -c 1 youtube.com > /dev/null; then
     scheduler
     exit 1
 fi
+# Import the gdrive account
+gdrive account import "$MUSICBOX_GDRIVE_TAR"
 # Cleanup the previous day
 cleanup
 # Download the necesary files

@@ -2,4 +2,4 @@
 rm -Rf test-cache
 mkdir test-cache
 set -a && source .env && set +a
-docker run -it --rm --name musicbox musicbox --device /dev/snd:/dev/snd -v test-cache/cache:"$MUSICBOX_CACHE_DIR" -v test-cache/cfg:"$MUSICBOX_CFG_DIR" -v test-cache/log:"$MUSICBOX_LOG_DIR"
+docker run -it --rm --name musicbox musicbox --device /dev/snd:/dev/snd -v test-cache/cache:"$MUSICBOX_CACHE_DIR" -v test-cache/cfg:"$MUSICBOX_CFG_DIR" -v test-cache/log:"$MUSICBOX_LOG_DIR" -e MUSICBOX_GDRIVE_TAR=/gdrive_export_tar -v creds/gdrive_export.tar:/gdrive_export_tar:ro
