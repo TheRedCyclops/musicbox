@@ -4,7 +4,6 @@ LABEL maintainer="***REMOVED***"
 RUN mkdir -p /cron && mkdir -p /scripts && mkdir -p /creds
 
 
-COPY cron /cron
 COPY scripts /scripts
 COPY creds /creds
 RUN apt-get update && apt-get install -y\
