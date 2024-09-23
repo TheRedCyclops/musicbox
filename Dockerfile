@@ -42,6 +42,4 @@ RUN addgroup --gid ${MUSICBOX_USER_GID} ${MUSICBOX_USER} && \
     adduser --uid ${MUSICBOX_USER_UID} --gid ${MUSICBOX_USER_GID} --disabled-password ${MUSICBOX_USER}
 RUN chown -R ${MUSICBOX_USER}:${MUSICBOX_USER} "$MUSICBOX_BIN_DIR" "$MUSICBOX_LOG_DIR" "$MUSICBOX_TMP_DIR" "$MUSICBOX_CFG_DIR" "$MUSICBOX_CACHE_DIR"
 RUN chmod +x /scripts/setup/install && /scripts/setup/install
-#USER ${MUSICBOX_USER}
 ENTRYPOINT [ "/usr/lib/musicbox/init.sh" ]
-#ENTRYPOINT [ "/usr/lib/musicbox/load" ]
