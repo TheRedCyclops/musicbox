@@ -3,7 +3,4 @@
 reload-time=20:00
 # Disable post processing
 post-processing=false
-# User used to run the program
-user="music"
-# Enable auto-updates
-auto-update=true
+
