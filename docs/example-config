@@ -1,6 +1,0 @@
-#MusicBox config
-#set the time to reload the config schedule and songs
-reload-time=20:00
-# Disable post processing
-post-processing=false
-
