@@ -1,5 +1,5 @@
 FROM debian
-LABEL maintainer="***REMOVED***"
+LABEL maintainer="TheRedCyclops"
 # Declare arguments
 ARG ARCH
 ENV ARCH=${ARCH}
