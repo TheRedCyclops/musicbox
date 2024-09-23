@@ -33,9 +33,10 @@ To stop musicbox run the following while in the the folder of the directory:
 ## Roadmap
 - [ ] Add usage instructions
 - [ ] Add troubleshooting instructions
+- [ ] Add developer information
 - [ ] Automatically create all needed files in google drive
+- [ ] Add a run test to the precommit unit tests (currently manually run)
 - [ ] Delay cleanup until all downloaded files are validated
 - [ ] Move all parts of the build script to the docker file
-- [ ] Add developer information
 - [ ] Support architectures other than amd64
 
