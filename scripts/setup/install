@@ -15,34 +15,8 @@
     installpath="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 || echo "CRITICAL: failed to get the path to installation directory" ; pwd -P | sed 's/scripts\/setup//')"
 # Import libraries [WORKING]
     source "$installpath/scripts/libraries/formatlib" && info "FormatLib imported"
-    source "$installpath/scripts/libraries/rootpermlib" && info "RootPermLib imported"
-# Check for root access [WORKING]
-    if rootcheck; then
-    info "Root access verified"
-    else
-    critical "This Script must be run as root!"
-    exit 1
-    fi
 # Import enviroment variables [WORKING]
     source "$installpath/.env" && info "Sourced enviroment"
-    # Add them to the default enviroment [NOT WORKING] (currently using workaround) TODO
-    #cp "$installpath/scripts/musicbox-env" /usr/lib/environment.d/musicbox.conf && info "Enviroment has been added to default"
-# Create all directories [WORKING]
-if mkdir -p "$MUSICBOX_BIN_DIR"; then info "Created $MUSICBOX_BIN_DIR Successfully"; else error "Failed to create $MUSICBOX_BIN_DIR"; fi
-if mkdir -p "$MUSICBOX_LOG_DIR"; then info "Created $MUSICBOX_LOG_DIR Successfully"; else error "Failed to create $MUSICBOX_LOG_DIR"; fi
-if mkdir -p "$MUSICBOX_TMP_DIR"; then info "Created $MUSICBOX_TMP_DIR Successfully"; else error "Failed to create $MUSICBOX_TMP_DIR"; fi
-if mkdir -p "$MUSICBOX_CFG_DIR"; then info "Created $MUSICBOX_CFG_DIR Successfully"; else error "Failed to create $MUSICBOX_CFG_DIR"; fi
-if mkdir -p "$MUSICBOX_CACHE_DIR"; then info "Created $MUSICBOX_CACHE_DIR Successfully"; else error "Failed to create $MUSICBOX_CACHE_DIR"; fi
-# Add DNS servers if --dnsfix is passed
-if [[ $1 == "--dnsfix" ]]; then
-    warn "Depracated!"
-    echo "nameserver 9.9.9.9" > /etc/resolv.conf
-    echo "dns-nameserver 9.9.9.9" >> /etc/network/interfaces
-fi
-# Check that the internet is working and update package db
-    if ! apt-get -o=Dpkg::Use-Pty=0 -qq update; then critical "Couldn't connect to the internet or package database update failed, exiting..."; exit 1; fi
-# Install packages [WORKING]
-    apt-get -qq -o=Dpkg::Use-Pty=0 -y install ffmpeg mp3gain mp3val pulseaudio pulseaudio-utils vlc mp3info wget sed iputils-ping cron file
         # Download and install gdrive
         # Create a temporary directory to store the download
         tmpdir=$(mktemp -d)
@@ -60,36 +34,14 @@ fi
         # Download and install yt-dlp (latest)
         wget "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp" -O /usr/local/bin/yt-dlp
         chmod +x /usr/local/bin/yt-dlp
-# Enable cron
-    systemctl enable --now cron
-# Add unprivileged user
-    adduser --home "$MUSICBOX_USER_DIR" --system --shell /bin/bash "$MUSICBOX_USER"
-    # Give it access to all the needed directories
-    chown "$MUSICBOX_USER" "$MUSICBOX_TMP_DIR"
-    chown "$MUSICBOX_USER" "$MUSICBOX_CFG_DIR"
-    chown "$MUSICBOX_USER" "$MUSICBOX_LOG_DIR"
-    chown "$MUSICBOX_USER" "$MUSICBOX_CACHE_DIR"
-    chown "$MUSICBOX_USER" "$MUSICBOX_USER_DIR"
 
-    # Copy drive credentials to home
-    cp "$installpath/creds/gdrive_export.tar" "$MUSICBOX_USER_DIR"
-    # Give permision to the user to import them
-    chown "$MUSICBOX_USER" "$MUSICBOX_USER_DIR/gdrive_export.tar"
-    # Setup drive access
-    EMAIL=$(tar tf "$MUSICBOX_USER_DIR/gdrive_export.tar" | head -n 1 | sed -e 's/\///' -e '1!p')
-    su -l "$MUSICBOX_USER" -s "/bin/bash" -c "$MUSICBOX_BIN_DIR/gdrive account import $MUSICBOX_USER_DIR/gdrive_export.tar"
-    # Remove credentials file
-    rm "$MUSICBOX_USER_DIR/gdrive_export-*.tar"
 # Copy scripts to bin
     # Gets all files and sends them as arguments to copy that copies them to the binaries directory
     find "$installpath/scripts" -type f -exec cp {} "$MUSICBOX_BIN_DIR/" \; && info "Copied scripts to $MUSICBOX_BIN_DIR"
     # Make all scripts executable
     chmod -R +x "$MUSICBOX_BIN_DIR"
-    # Move enviroment variable file to config dir
-    mv "$MUSICBOX_BIN_DIR"/musicbox-env "$MUSICBOX_CFG_DIR"
-    # Add var for email
-    echo "MUSICBOX_EMAIL=$EMAIL" >> "$MUSICBOX_CFG_DIR"/musicbox-env
 #Create checksums for integrity testing
 sha1sum "$MUSICBOX_BIN_DIR"/* > "$MUSICBOX_CFG_DIR"/sha1sums
+# Give it access to all the needed directories
 
 info "Instalation Finished"

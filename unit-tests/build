@@ -1,2 +1,7 @@
 #!/bin/bash
-docker build -t musicbox:latest .
+ARGS=""
+while IFS= read -r line; do
+  ARGS="$ARGS --build-arg $line"
+done < .build-args
+# shellcheck disable=SC2086
+docker build -t musicbox:latest ${ARGS} .

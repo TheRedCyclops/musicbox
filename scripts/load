@@ -26,7 +26,9 @@ if ! ping -c 1 youtube.com > /dev/null; then
     exit 1
 fi
 # Import the gdrive account
-gdrive account import "$MUSICBOX_GDRIVE_TAR"
+gdrive account import "$MUSICBOX_GDRIVE_TAR" || critical "Failed to import gdrive account"
+MUSICBOX_EMAIL=$(tar tf "$MUSICBOX_GDRIVE_TAR" | head -n 1 | sed -e 's/\///' -e '1!p')
+export MUSICBOX_EMAIL
 # Cleanup the previous day
 cleanup
 # Download the necesary files
