@@ -3,4 +3,12 @@ rm -Rf test-cache
 mkdir test-cache
 set -a && source .env && set +a
 set -a && source .build-args && set +a
-docker run -it --rm --name musicbox  --device /dev/snd:/dev/snd -v "$PWD"/test-cache/cache:"$MUSICBOX_CACHE_DIR" -v "$PWD"/test-cache/cfg:"$MUSICBOX_CFG_DIR" -v "$PWD"/test-cache/log:"$MUSICBOX_LOG_DIR" -e MUSICBOX_GDRIVE_TAR=/gdrive_export_tar -v "$PWD"/creds/gdrive_export.tar:/gdrive_export_tar:ro musicbox
+docker run -it --rm --name musicbox  \
+--device /dev/snd:/dev/snd \
+-v "$PWD"/test-cache/cache:"$MUSICBOX_CACHE_DIR" \
+-v "$PWD"/test-cache/cfg:"$MUSICBOX_CFG_DIR" \
+-v "$PWD"/test-cache/log:"$MUSICBOX_LOG_DIR" \
+-v /run/user/$UID/pipewire-0:/tmp/pipewire-0 \
+-v "$PWD"/creds/gdrive_export.tar:/gdrive_export_tar:ro \
+-e MUSICBOX_GDRIVE_TAR=/gdrive_export_tar \
+musicbox

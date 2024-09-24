@@ -2,15 +2,26 @@ services:
   musicbox:
     container_name: musicbox
     image: musicbox:latest
-    devices:
-      - /dev/snd:/dev/snd
+    # Uncomment the followng two lines if you're using alsa
+    #devices:
+    #  - /dev/snd:/dev/snd
     volumes:
       - ./cache:$MUSICBOX_CACHE_DIR
       - ./cfg:$MUSICBOX_CFG_DIR
       - ./log:$MUSICBOX_LOG_DIR
+    # Uncomment the third line if using pipewire, set to the output of the following command:
+    # echo "/run/user/$(ps -o uid= -p$(pgrep -d, -x pipewire) | sed 's/ //' )/pipewire-0:/tmp/pipewire-0"
+    #  - run/user/1000/pipewire-0:/tmp/pipewire-0
+
+    # Uncomment the third line if using pulseaudio, run the following command before starting the container
+    # pactl load-module module-native-protocol-unix socket=/tmp/pulseaudio.socket
+    #  - /tmp/pulseaudio.socket:/tmp/pulseaudio.socket
     env_file:
       - .env
     environment:
+    # Uncomment the following two lines if using pulseaudio
+    #  - PULSE_SERVER=unix:/tmp/pulseaudio.socket
+    #  - PULSE_COOKIE=/tmp/pulseaudio.cookie
       - MUSICBOX_GDRIVE_TAR=/run/secrets/gdrive_export_tar
     secrets:
       - gdrive_export_tar
