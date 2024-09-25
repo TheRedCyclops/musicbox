@@ -1,0 +1,9 @@
+#!/bin/bash
+# Import libraries
+import gdrivelib
+# Create Directory structure
+gdrive mkdir 'Extra songs'
+for file in init-skel/*; do
+gdrive files import "$file"
+gdrive files rename "$(getfileid "$file")" "${file/\.odt//}" 
+done

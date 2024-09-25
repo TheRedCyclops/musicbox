@@ -19,6 +19,7 @@ export PATH=$MUSICBOX_BIN_DIR:$PATH
 # Import libraries
 source formatlib
 source configlib
+source gdrivelib
 #Check internet connection
 if ! ping -c 1 youtube.com > /dev/null; then
     critical "Failed to connect to the internet!, using previous config as fallback"
@@ -29,6 +30,11 @@ fi
 gdrive account import "$MUSICBOX_GDRIVE_TAR" || critical "Failed to import gdrive account"
 MUSICBOX_EMAIL=$(tar tf "$MUSICBOX_GDRIVE_TAR" | head -n 1 | sed -e 's/\///' -e '1!p')
 export MUSICBOX_EMAIL
+# Check if this is the first run by checking if the files exist, if they don't create the directory structure
+if ! getfileid 'Configuration'; then
+first-run
+fi
+
 # Cleanup the previous day
 cleanup
 # Download the necesary files
