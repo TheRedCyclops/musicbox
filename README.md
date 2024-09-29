@@ -1,5 +1,5 @@
 # MusicBox
-### A Docker Container for all your automated audio playing needs 
+### A Docker Container for all your automated remote audio playing needs from google drive
 ## Goal
 The goal of this proyect is to create a system that once setup in easy to operate
 ## Docs
